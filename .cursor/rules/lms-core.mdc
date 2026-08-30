@@ -1,0 +1,39 @@
+---
+description: Core LMS agent context — architecture, stack, and non-negotiable rules
+alwaysApply: true
+---
+
+# Mahbere Ahaw Seminary LMS
+
+Read and obey `.ai/agent.md`, `.ai/rules.md`, `.ai/best-practices.md`, and `.ai/grill-me.md`.
+
+## Priorities
+
+Maintainability → Scalability → Security → Readability → Performance
+
+Never optimize for development speed at the expense of architecture.
+
+## Stack
+
+- Frontend: Next.js 15, TypeScript, Tailwind, shadcn/ui, TanStack Query, Zustand, RHF, Zod
+- Backend: NestJS, Prisma, PostgreSQL 17, Redis, BullMQ, JWT + refresh, Argon2, MinIO
+- Real-time: WebSocket notifications (queued via BullMQ, never sync)
+
+## Architecture
+
+Modular monolith. Each feature owns controller, service, repository, dto, validation, tests.
+
+- Controllers thin; business logic in services; DB in repositories
+- No `any`; never disable TypeScript
+- No hardcoded IDs, URLs, roles, or permissions
+- Every endpoint validates input + authorization
+- DB changes via Prisma migrations only
+- Soft delete; UUID PKs; consistent API responses
+
+## Domain constraints
+
+- Drip unlock: Month N opens 30 days after student `cohortStartedAt` (Month 1 immediate)
+- Offline reading after download; online required for submit + new downloads
+- Files in object storage only — never in PostgreSQL
+
+Before finishing, run the checklist in `.ai/grill-me.md`.

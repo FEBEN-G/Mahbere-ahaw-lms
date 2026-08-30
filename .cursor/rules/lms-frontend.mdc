@@ -1,0 +1,29 @@
+---
+description: Next.js frontend conventions for LMS portals
+globs: "**/apps/web/**/*.{ts,tsx},**/frontend/**/*.{ts,tsx},**/app/**/*.{ts,tsx},**/components/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Frontend Conventions
+
+Follow `.ai/architecture/frontend.md`.
+
+## State
+
+- Server state → TanStack Query
+- UI state → Zustand or local state
+- Forms → React Hook Form + Zod
+- Do not mirror API cache into Zustand
+
+## Surfaces
+
+- `(student)` portal: dashboard, PDF reader, submissions, grades, offline cache
+- `(instructor)` panel: review + grading
+- `(admin)` dashboard: users, courses, drip, gradebook/export
+
+## UX constraints
+
+- Built-in PDF viewer for modules
+- Low-data friendly payloads and lazy-loaded heavy views
+- WebSocket toasts for notifications; sync inbox on reconnect
+- Clear offline/online affordances for students

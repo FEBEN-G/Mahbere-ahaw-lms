@@ -1,0 +1,25 @@
+---
+description: NestJS backend conventions for LMS API modules
+globs: "**/apps/api/**/*.{ts,prisma},**/backend/**/*.ts,**/prisma/**/*"
+alwaysApply: false
+---
+
+# Backend Conventions
+
+Follow `.ai/architecture/backend.md`, `.ai/architecture/database.md`, `.ai/architecture/authentication.md`, and `.ai/architecture/security.md`.
+
+## Module shape
+
+`controller → service → repository` with module-owned DTOs and tests.
+
+## Musts
+
+- class-validator DTOs + ValidationPipe whitelist
+- RBAC permission checks on every protected route
+- Argon2 for passwords; JWT + rotating refresh tokens
+- BullMQ for notifications, exports, content-release fan-out
+- `@nestjs/schedule` for drip unlock; unlock relative to enrollment
+- Pino logging; Swagger for public API docs
+- Paginate lists; avoid N+1; use transactions for multi-step writes
+
+See owning docs in `.ai/modules/` for domain rules.

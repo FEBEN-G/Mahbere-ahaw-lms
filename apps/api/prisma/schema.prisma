@@ -1,0 +1,557 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+enum Permission {
+  USER_CREATE
+  USER_READ
+  USER_UPDATE
+  USER_DELETE
+  COURSE_CREATE
+  COURSE_READ
+  COURSE_UPDATE
+  COURSE_DELETE
+  COURSE_PUBLISH
+  MODULE_MANAGE
+  ASSIGNMENT_MANAGE
+  SUBMISSION_READ
+  SUBMISSION_CREATE
+  SUBMISSION_UPDATE
+  GRADE_CREATE
+  GRADE_READ
+  GRADE_PUBLISH
+  GRADE_OVERRIDE
+  GRADEBOOK_EXPORT
+  NOTIFICATION_READ
+  DASHBOARD_ADMIN
+  DASHBOARD_INSTRUCTOR
+  DASHBOARD_STUDENT
+  SETTINGS_MANAGE
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AttachmentType {
+  PDF
+  DOCX
+  VIDEO_LINK
+  IMAGE
+  OTHER
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  LATE
+  GRADED
+  RETURNED
+}
+
+enum GradeStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  PUSH
+  WEBSOCKET
+}
+
+enum NotificationStatus {
+  PENDING
+  QUEUED
+  SENT
+  FAILED
+  READ
+}
+
+enum ExportJobStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum DevicePlatform {
+  IOS
+  ANDROID
+}
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  email           String    @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  role            Role
+  isActive        Boolean   @default(true)
+  mustSetPassword Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  studentProfile      StudentProfile?
+  instructorProfile   InstructorProfile?
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  accountInviteTokens AccountInviteToken[]
+  auditLogs           AuditLog[]           @relation("AuditActor")
+  notifications       Notification[]
+  pushSubscriptions   PushSubscription[]
+  devicePushTokens    DevicePushToken[]
+  exportJobs          ExportJob[]
+  createdCourses      Course[]             @relation("CourseCreatedBy")
+  updatedCourses      Course[]             @relation("CourseUpdatedBy")
+
+  @@index([role])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model RolePermission {
+  id         String     @id @default(uuid()) @db.Uuid
+  role       Role
+  permission Permission
+  createdAt  DateTime   @default(now())
+
+  @@unique([role, permission])
+  @@map("role_permissions")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model AccountInviteToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("account_invite_tokens")
+}
+
+model StudentProfile {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @unique @db.Uuid
+  studentCode String? @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollment  Enrollment?
+  submissions Submission[]
+  attachmentProgress StudentAttachmentProgress[]
+
+  @@map("student_profiles")
+}
+
+model InstructorProfile {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @unique @db.Uuid
+  title     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseAssignments InstructorCourseAssignment[]
+  grades          Grade[]
+
+  @@map("instructor_profiles")
+}
+
+model Enrollment {
+  id              String    @id @default(uuid()) @db.Uuid
+  studentId       String    @unique @db.Uuid
+  cohortStartedAt DateTime
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([cohortStartedAt])
+  @@index([deletedAt])
+  @@map("enrollments")
+}
+
+model Course {
+  id          String       @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  monthNumber Int
+  status      CourseStatus @default(DRAFT)
+  createdById String       @db.Uuid
+  updatedById String?      @db.Uuid
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  createdBy   User                         @relation("CourseCreatedBy", fields: [createdById], references: [id])
+  updatedBy   User?                        @relation("CourseUpdatedBy", fields: [updatedById], references: [id])
+  modules     Module[]
+  assignments Assignment[]
+  instructors InstructorCourseAssignment[]
+
+  @@index([monthNumber])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("courses")
+}
+
+model InstructorCourseAssignment {
+  id           String   @id @default(uuid()) @db.Uuid
+  instructorId String   @db.Uuid
+  courseId     String   @db.Uuid
+  createdAt    DateTime @default(now())
+
+  instructor InstructorProfile @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+  course     Course            @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  @@unique([instructorId, courseId])
+  @@index([courseId])
+  @@map("instructor_course_assignments")
+}
+
+model Module {
+  id          String    @id @default(uuid()) @db.Uuid
+  courseId    String    @db.Uuid
+  title       String
+  description String?
+  sortOrder   Int       @default(0)
+  isVisible   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  attachments Attachment[]
+
+  @@index([courseId])
+  @@index([deletedAt])
+  @@map("modules")
+}
+
+model Attachment {
+  id           String         @id @default(uuid()) @db.Uuid
+  moduleId     String         @db.Uuid
+  type         AttachmentType
+  title        String
+  objectKey    String?
+  originalName String?
+  mimeType     String?
+  sizeBytes    Int?
+  externalUrl  String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Restrict)
+  studentProgress StudentAttachmentProgress[]
+
+  @@index([moduleId])
+  @@index([deletedAt])
+  @@map("attachments")
+}
+
+model StudentAttachmentProgress {
+  id               String   @id @default(uuid()) @db.Uuid
+  studentProfileId String   @db.Uuid
+  attachmentId     String   @db.Uuid
+  completedAt      DateTime @default(now())
+
+  student    StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  attachment Attachment     @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentProfileId, attachmentId])
+  @@index([studentProfileId])
+  @@map("student_attachment_progress")
+}
+
+model Assignment {
+  id          String    @id @default(uuid()) @db.Uuid
+  courseId    String    @db.Uuid
+  title       String
+  description String?
+  dueAt       DateTime
+  maxScore    Decimal   @default(100) @db.Decimal(8, 2)
+  objectKey   String?
+  originalName String?
+  mimeType    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  submissions Submission[]
+
+  @@index([courseId])
+  @@index([dueAt])
+  @@index([deletedAt])
+  @@map("assignments")
+}
+
+model Submission {
+  id             String           @id @default(uuid()) @db.Uuid
+  assignmentId   String           @db.Uuid
+  studentId      String           @db.Uuid
+  status         SubmissionStatus @default(SUBMITTED)
+  objectKey      String
+  originalName   String
+  mimeType       String
+  sizeBytes      Int
+  submittedAt    DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+
+  assignment Assignment     @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
+  student    StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  grade      Grade?
+
+  @@unique([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
+  @@index([deletedAt])
+  @@map("submissions")
+}
+
+model Grade {
+  id            String      @id @default(uuid()) @db.Uuid
+  submissionId  String      @unique @db.Uuid
+  instructorId  String      @db.Uuid
+  score         Decimal     @db.Decimal(8, 2)
+  feedback      String?
+  status        GradeStatus @default(DRAFT)
+  publishedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  submission Submission      @relation(fields: [submissionId], references: [id], onDelete: Restrict)
+  instructor InstructorProfile @relation(fields: [instructorId], references: [id])
+  history    GradeHistory[]
+
+  @@index([instructorId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("grades")
+}
+
+model GradeHistory {
+  id         String   @id @default(uuid()) @db.Uuid
+  gradeId    String   @db.Uuid
+  score      Decimal  @db.Decimal(8, 2)
+  feedback   String?
+  status     GradeStatus
+  changedBy  String   @db.Uuid
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  grade Grade @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+
+  @@index([gradeId])
+  @@map("grade_histories")
+}
+
+model Notification {
+  id        String              @id @default(uuid()) @db.Uuid
+  userId    String              @db.Uuid
+  title     String
+  body      String
+  channel   NotificationChannel @default(IN_APP)
+  status    NotificationStatus  @default(PENDING)
+  eventType String
+  payload   Json?
+  readAt    DateTime?
+  sentAt    DateTime?
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  deletedAt DateTime?
+
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries NotificationDelivery[]
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("notifications")
+}
+
+model NotificationDelivery {
+  id             String              @id @default(uuid()) @db.Uuid
+  notificationId String              @db.Uuid
+  channel        NotificationChannel
+  status         NotificationStatus  @default(PENDING)
+  error          String?
+  sentAt         DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, channel])
+  @@index([status])
+  @@map("notification_deliveries")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  endpoint  String
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([endpoint])
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model DevicePushToken {
+  id         String         @id @default(uuid()) @db.Uuid
+  userId     String         @db.Uuid
+  token      String         @unique
+  platform   DevicePlatform
+  deviceName String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("device_push_tokens")
+}
+
+model SystemSettings {
+  id                       String   @id @default(uuid()) @db.Uuid
+  dripDaysPerMonth         Int      @default(30)
+  publishedCoursesPerMonth Int      @default(2)
+  maxUploadMb              Int      @default(10)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  updatedById              String?  @db.Uuid
+
+  @@map("system_settings")
+}
+
+model ExportJob {
+  id            String          @id @default(uuid()) @db.Uuid
+  requestedById String          @db.Uuid
+  status        ExportJobStatus @default(PENDING)
+  objectKey     String?
+  mimeType      String?
+  originalName  String?
+  error         String?
+  expiresAt     DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  requestedBy User @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+
+  @@index([requestedById, createdAt])
+  @@index([status])
+  @@map("export_jobs")
+}
+
+model ContentReleaseCursor {
+  id           String   @id @default(uuid()) @db.Uuid
+  enrollmentId String   @db.Uuid
+  monthNumber  Int
+  notifiedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@unique([enrollmentId, monthNumber])
+  @@index([enrollmentId])
+  @@map("content_release_cursors")
+}
+
+model ReminderCursor {
+  id           String   @id @default(uuid()) @db.Uuid
+  assignmentId String   @db.Uuid
+  userId       String   @db.Uuid
+  windowHours  Int
+  notifiedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@unique([assignmentId, userId, windowHours])
+  @@index([assignmentId])
+  @@map("reminder_cursors")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @db.Uuid
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

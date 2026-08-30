@@ -1,0 +1,31 @@
+{
+  "name": "mahbere-ahaw-lms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mahbere Ahaw Seminary Distance Learning Management System",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node ./node_modules/concurrently/dist/bin/concurrently.js -n api,web -c green,cyan \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run start:dev -w @lms/api",
+    "dev:web": "npm run dev -w @lms/web",
+    "build:api": "npm run build -w @lms/api",
+    "build:web": "npm run build -w @lms/web",
+    "build": "npm run build:api && npm run build:web",
+    "lint": "npm run lint -w @lms/api && npm run lint -w @lms/web",
+    "test:api": "npm run test -w @lms/api",
+    "prisma:generate": "npm run prisma:generate -w @lms/api",
+    "prisma:migrate": "npm run prisma:migrate -w @lms/api",
+    "prisma:studio": "npm run prisma:studio -w @lms/api",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
