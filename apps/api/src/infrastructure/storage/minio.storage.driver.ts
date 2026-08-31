@@ -13,6 +13,11 @@ export class MinioStorageDriver implements StorageDriver, OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit() {
+    const driver = this.configService.get<string>('storage.driver') ?? 'local';
+    if (driver !== 'minio') {
+      return;
+    }
+
     this.bucket =
       this.configService.get<string>('storage.minio.bucket') ?? 'lms-content';
     this.client = new Minio.Client({
@@ -34,10 +39,19 @@ export class MinioStorageDriver implements StorageDriver, OnModuleInit {
     }
   }
 
+  private ensureClient(): void {
+    if (!this.client) {
+      throw new Error(
+        'MinIO storage is not active. Set STORAGE_DRIVER=minio to use this driver.',
+      );
+    }
+  }
+
   async saveBuffer(
     buffer: Buffer,
     input: { originalName: string; mimeType: string; folder: string },
   ): Promise<StoredFile> {
+    this.ensureClient();
     const objectKey = this.buildObjectKey(input.folder, input.originalName);
     await this.client.putObject(this.bucket, objectKey, buffer, buffer.length, {
       'Content-Type': input.mimeType,
@@ -55,6 +69,7 @@ export class MinioStorageDriver implements StorageDriver, OnModuleInit {
     stream: Readable,
     input: SaveStreamInput,
   ): Promise<StoredFile> {
+    this.ensureClient();
     const objectKey = this.buildObjectKey(input.folder, input.originalName);
     await this.client.putObject(
       this.bucket,
@@ -75,6 +90,7 @@ export class MinioStorageDriver implements StorageDriver, OnModuleInit {
   }
 
   async fileExists(objectKey: string): Promise<boolean> {
+    this.ensureClient();
     try {
       await this.client.statObject(this.bucket, objectKey);
       return true;
@@ -84,6 +100,7 @@ export class MinioStorageDriver implements StorageDriver, OnModuleInit {
   }
 
   async createReadStream(objectKey: string): Promise<Readable> {
+    this.ensureClient();
     return this.client.getObject(this.bucket, objectKey);
   }
 
