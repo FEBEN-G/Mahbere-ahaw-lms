@@ -1,3 +1,8 @@
+import {
+  hasProductionWebOrigin,
+  parseCorsOrigins,
+} from './cors-origins.util';
+
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
@@ -7,6 +12,16 @@ function requireEnv(name: string): string {
 }
 
 const WEAK_MINIO_DEFAULTS = new Set(['minioadmin', 'changeme', 'password']);
+
+function validateProductionCors(): void {
+  requireEnv('WEB_PUBLIC_URL');
+  const origins = parseCorsOrigins();
+  if (!hasProductionWebOrigin(origins)) {
+    throw new Error(
+      'WEB_PUBLIC_URL must be your public web URL (https://...) so CORS allows browser login',
+    );
+  }
+}
 
 function validateProductionStorage(): void {
   const driver = process.env.STORAGE_DRIVER ?? 'local';
@@ -64,6 +79,7 @@ export function validateEnvironment(): void {
 
   const nodeEnv = process.env.NODE_ENV ?? 'development';
   if (nodeEnv !== 'development') {
+    validateProductionCors();
     validateProductionStorage();
   }
 }

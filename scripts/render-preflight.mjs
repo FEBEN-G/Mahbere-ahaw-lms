@@ -29,6 +29,31 @@ console.log('[render] DATABASE_URL format OK');
 const nodeEnv = process.env.NODE_ENV ?? 'development';
 const storageDriver = process.env.STORAGE_DRIVER ?? 'local';
 
+if (nodeEnv !== 'development') {
+  const webPublicUrl = (process.env.WEB_PUBLIC_URL ?? '').trim();
+  if (!webPublicUrl) {
+    console.error('[render] WEB_PUBLIC_URL is missing.');
+    console.error(
+      '[render] Fix: set WEB_PUBLIC_URL=https://mahbere-ahaw-lms-web.onrender.com on the API service',
+    );
+    process.exit(1);
+  }
+
+  const corsOrigins = [
+    ...new Set(
+      [
+        ...(process.env.CORS_ORIGINS ?? '')
+          .split(',')
+          .map((origin) => origin.trim().replace(/\/+$/, ''))
+          .filter(Boolean),
+        webPublicUrl.replace(/\/+$/, ''),
+      ].filter(Boolean),
+    ),
+  ];
+
+  console.log('[render] CORS origins:', corsOrigins.join(', '));
+}
+
 if (nodeEnv !== 'development' && storageDriver === 'local') {
   const localPath = (process.env.STORAGE_LOCAL_PATH ?? '').trim();
 

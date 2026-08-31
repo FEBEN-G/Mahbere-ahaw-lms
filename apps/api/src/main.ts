@@ -16,7 +16,7 @@ async function bootstrap() {
   const logger = app.get(Logger);
 
   app.useLogger(logger);
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(
     compression({
       threshold: 1024,

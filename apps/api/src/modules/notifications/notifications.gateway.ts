@@ -9,16 +9,14 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { parseCorsOrigins } from '../../config/cors-origins.util';
 import { JwtService } from '@nestjs/jwt';
 import { createAdapter } from '@socket.io/redis-adapter';
 import Redis from 'ioredis';
 import { Namespace, Server, Socket } from 'socket.io';
 
 function resolveCorsOrigins(): string[] {
-  return (process.env.CORS_ORIGINS ?? 'http://localhost:3000,http://localhost:3001')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+  return parseCorsOrigins();
 }
 
 @WebSocketGateway({

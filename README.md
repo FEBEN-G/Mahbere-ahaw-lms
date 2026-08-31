@@ -148,8 +148,8 @@ Persistent Disks require a **paid** Render instance (not the free web tier).
 | `STORAGE_DRIVER` | `local` |
 | `STORAGE_LOCAL_PATH` | `/data/uploads` (must match disk mount) |
 | `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | 32+ chars each |
-| `CORS_ORIGINS` | Your web URL(s) |
-| `WEB_PUBLIC_URL` | Public web URL |
+| `CORS_ORIGINS` | Your web URL(s), e.g. `https://mahbere-ahaw-lms-web.onrender.com` |
+| `WEB_PUBLIC_URL` | Same web URL — **required**; also added to CORS automatically |
 | `SEED_*` | For seeding via Shell (not committed) |
 
 ### Web environment

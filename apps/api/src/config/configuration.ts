@@ -1,16 +1,12 @@
+import { parseCorsOrigins } from './cors-origins.util';
+
 export default function configuration() {
   return {
     nodeEnv: process.env.NODE_ENV ?? 'development',
     api: {
       port: Number(process.env.API_PORT ?? 4000),
       prefix: process.env.API_PREFIX ?? 'api/v1',
-      corsOrigins: (
-        process.env.CORS_ORIGINS ??
-        'http://localhost:3000,http://localhost:3001'
-      )
-        .split(',')
-        .map((origin) => origin.trim())
-        .filter(Boolean),
+      corsOrigins: parseCorsOrigins(),
     },
     database: {
       url: process.env.DATABASE_URL,
