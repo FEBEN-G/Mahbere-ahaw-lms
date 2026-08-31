@@ -77,11 +77,14 @@ npm run dev:web
 
 ### Seed accounts (all roles)
 
+Defaults match `apps/api/prisma/seed.ts`. Override with `SEED_*` variables in
+`apps/api/.env` (see `.env.example`).
+
 | Role | Email | Password | Portal |
 | ---- | ----- | -------- | ------ |
-| Super Admin | `admin@mahbereahaw.org` | `ChangeMeNow!123` | `/admin` |
-| Instructor | `instructor@mahbereahaw.org` | `ChangeMeNow!123` | `/instructor` |
-| Student | `student@mahbereahaw.org` | `ChangeMeNow!123` | `/student` |
+| Super Admin | `admin@mahbereahaw.org` | `Admin@mahbereahawlms316` | `/admin` |
+| Instructor | `instructor@mahbereahaw.org` | `Instructor@mahbereahawlms` | `/instructor` |
+| Student | `student@mahbereahaw.org` | `Student@mahbereahaw` | `/student` |
 
 Re-seed anytime: `npm run prisma:seed -w @lms/api`
 

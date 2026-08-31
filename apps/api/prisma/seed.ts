@@ -335,9 +335,10 @@ async function main() {
   await seedDemoContent(admin.id, instructor.id);
 
   console.log('Seed complete. Accounts updated (passwords not logged).');
-  console.log('  Super Admin  admin@mahbereahaw.org');
-  console.log('  Instructor   instructor@mahbereahaw.org');
-  console.log('  Student      student@mahbereahaw.org');
+  console.log(`  Super Admin  ${process.env.SEED_SUPER_ADMIN_EMAIL ?? 'admin@mahbereahaw.org'}`);
+  console.log(`  Instructor   ${process.env.SEED_INSTRUCTOR_EMAIL ?? 'instructor@mahbereahaw.org'}`);
+  console.log(`  Student      ${process.env.SEED_STUDENT_EMAIL ?? 'student@mahbereahaw.org'}`);
+  console.log('  Passwords: see README.md or .env.example (SEED_* variables).');
 }
 
 main()
