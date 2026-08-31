@@ -24,8 +24,29 @@ export class LocalStorageDriver implements StorageDriver {
     this.basePath = configuredPath.startsWith('/')
       ? configuredPath
       : resolve(process.cwd(), configuredPath);
-    if (!existsSync(this.basePath)) {
+    this.ensureBasePathExists();
+  }
+
+  private ensureBasePathExists(): void {
+    if (existsSync(this.basePath)) {
+      return;
+    }
+
+    try {
       mkdirSync(this.basePath, { recursive: true });
+    } catch (error) {
+      const code =
+        error instanceof Error && 'code' in error
+          ? String((error as NodeJS.ErrnoException).code)
+          : undefined;
+
+      if (code === 'EACCES' || code === 'EROFS') {
+        throw new Error(
+          `Cannot create upload directory "${this.basePath}". On Render, attach a Persistent Disk with mount path matching STORAGE_LOCAL_PATH (e.g. /data/uploads), then redeploy.`,
+        );
+      }
+
+      throw error;
     }
   }
 

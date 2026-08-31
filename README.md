@@ -132,6 +132,13 @@ STORAGE_LOCAL_PATH=/data/uploads
 
 Without a Persistent Disk, uploaded files are **lost on redeploy**. The disk is shared by all users (students, instructors, admins) through the API.
 
+**`EACCES: permission denied, mkdir '/data/uploads'`** — you set `STORAGE_LOCAL_PATH` but the API cannot create that folder. Either:
+
+1. **Recommended:** API service → **Disks** → add Persistent Disk → mount path **`/data/uploads`** → **Redeploy** (path must match `STORAGE_LOCAL_PATH` exactly), or
+2. **Temporary only** (boot without disk; uploads wiped on redeploy): `STORAGE_LOCAL_PATH=/opt/render/project/src/storage/uploads`
+
+Persistent Disks require a **paid** Render instance (not the free web tier).
+
 ### API environment (minimum)
 
 | Variable | Notes |
