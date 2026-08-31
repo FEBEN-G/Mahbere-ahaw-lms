@@ -5,8 +5,11 @@ async function main() {
   const prisma = new PrismaClient();
   const base = 'http://localhost:4000/api/v1';
   const email = 'student@mahbereahaw.org';
-  const password =
-    process.env.SEED_STUDENT_PASSWORD || 'Student@mahbereahaw';
+  const password = process.env.SEED_STUDENT_PASSWORD;
+  if (!password) {
+    console.error('Set SEED_STUDENT_PASSWORD before running smoke tests.');
+    process.exit(1);
+  }
 
   const forgot = await fetch(`${base}/auth/forgot-password`, {
     method: 'POST',

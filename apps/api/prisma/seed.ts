@@ -12,12 +12,19 @@ import { ROLE_PERMISSION_MAP } from '../src/common/constants/permissions';
 
 const prisma = new PrismaClient();
 
-const ADMIN_PASSWORD =
-  process.env.SEED_SUPER_ADMIN_PASSWORD ?? 'Admin@mahbereahawlms316';
-const INSTRUCTOR_PASSWORD =
-  process.env.SEED_INSTRUCTOR_PASSWORD ?? 'Instructor@mahbereahawlms';
-const STUDENT_PASSWORD =
-  process.env.SEED_STUDENT_PASSWORD ?? 'Student@mahbereahaw';
+function requireSeedEnv(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(
+      `Missing ${name}. Set seed credentials in apps/api/.env (see .env.example).`,
+    );
+  }
+  return value;
+}
+
+const ADMIN_PASSWORD = requireSeedEnv('SEED_SUPER_ADMIN_PASSWORD');
+const INSTRUCTOR_PASSWORD = requireSeedEnv('SEED_INSTRUCTOR_PASSWORD');
+const STUDENT_PASSWORD = requireSeedEnv('SEED_STUDENT_PASSWORD');
 
 /** Minimal valid PDF for demo reader / offline flows */
 const DEMO_PDF = Buffer.from(
@@ -338,7 +345,7 @@ async function main() {
   console.log(`  Super Admin  ${process.env.SEED_SUPER_ADMIN_EMAIL ?? 'admin@mahbereahaw.org'}`);
   console.log(`  Instructor   ${process.env.SEED_INSTRUCTOR_EMAIL ?? 'instructor@mahbereahaw.org'}`);
   console.log(`  Student      ${process.env.SEED_STUDENT_EMAIL ?? 'student@mahbereahaw.org'}`);
-  console.log('  Passwords: see README.md or .env.example (SEED_* variables).');
+  console.log('  Passwords: configured via SEED_* env vars (see .env.example).');
 }
 
 main()

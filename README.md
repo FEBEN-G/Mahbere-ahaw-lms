@@ -77,16 +77,16 @@ npm run dev:web
 
 ### Seed accounts (all roles)
 
-Defaults match `apps/api/prisma/seed.ts`. Override with `SEED_*` variables in
-`apps/api/.env` (see `.env.example`).
+Set `SEED_*` credentials in `apps/api/.env` (see `.env.example`), then run
+`npm run prisma:seed -w @lms/api`. **Do not commit real passwords to git.**
 
-| Role | Email | Password | Portal |
-| ---- | ----- | -------- | ------ |
-| Super Admin | `admin@mahbereahaw.org` | `Admin@mahbereahawlms316` | `/admin` |
-| Instructor | `instructor@mahbereahaw.org` | `Instructor@mahbereahawlms` | `/instructor` |
-| Student | `student@mahbereahaw.org` | `Student@mahbereahaw` | `/student` |
+| Role | Email | Portal |
+| ---- | ----- | ------ |
+| Super Admin | `admin@mahbereahaw.org` | `/admin` |
+| Instructor | `instructor@mahbereahaw.org` | `/instructor` |
+| Student | `student@mahbereahaw.org` | `/student` |
 
-Re-seed anytime: `npm run prisma:seed -w @lms/api`
+Passwords are configured only via `SEED_*` environment variables.
 
 ## Deploy on Render
 

@@ -1,12 +1,17 @@
 async function main() {
+  const password = process.env.SEED_SUPER_ADMIN_PASSWORD;
+  if (!password) {
+    console.error('Set SEED_SUPER_ADMIN_PASSWORD before running smoke tests.');
+    process.exit(1);
+  }
+
   const base = 'http://localhost:4000/api/v1';
   const login = await fetch(`${base}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       email: 'admin@mahbereahaw.org',
-      password:
-        process.env.SEED_SUPER_ADMIN_PASSWORD || 'Admin@mahbereahawlms316',
+      password,
     }),
   });
   const loginJson = await login.json();

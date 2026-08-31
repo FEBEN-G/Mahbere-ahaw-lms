@@ -3,7 +3,11 @@ const path = require('path');
 const os = require('os');
 
 const BASE = 'http://localhost:4000/api/v1';
-const PASS = process.env.SEED_SUPER_ADMIN_PASSWORD || 'Admin@mahbereahawlms316';
+const PASS = process.env.SEED_SUPER_ADMIN_PASSWORD;
+if (!PASS) {
+  console.error('Set SEED_SUPER_ADMIN_PASSWORD before running smoke tests.');
+  process.exit(1);
+}
 const failures = [];
 
 async function req(method, urlPath, { token, body, formPath } = {}) {
