@@ -40,6 +40,14 @@ export function createAssignmentRequest(
   return authenticatedUpload(`/assignments/courses/${courseId}`, formData);
 }
 
+export function updateAssignmentRequest(id: string, formData: FormData) {
+  return authenticatedUpload(`/assignments/${id}`, formData, "PATCH");
+}
+
+export function deleteAssignmentRequest(id: string) {
+  return authenticatedRequest(`/assignments/${id}`, { method: "DELETE" });
+}
+
 export function getAssignmentRequest(id: string) {
   return authenticatedRequest(`/assignments/${id}`, { method: "GET" });
 }

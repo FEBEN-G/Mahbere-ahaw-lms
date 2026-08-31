@@ -11,6 +11,7 @@ import { CoursesRepository } from '../courses/courses.repository';
 import { StudentsRepository } from '../students/students.repository';
 import { AssignmentsRepository } from './assignments.repository';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
+import { UpdateAssignmentDto } from './dto/update-assignment.dto';
 
 @Injectable()
 export class AssignmentsService {
@@ -57,6 +58,56 @@ export class AssignmentsService {
       mimeType,
       course: { connect: { id: courseId } },
     });
+  }
+
+  async update(
+    assignmentId: string,
+    dto: UpdateAssignmentDto,
+    file?: Express.Multer.File,
+  ) {
+    const assignment = await this.assignmentsRepository.findById(assignmentId);
+    if (!assignment) {
+      throw new NotFoundException('Assignment not found');
+    }
+
+    let objectKey: string | undefined;
+    let originalName: string | undefined;
+    let mimeType: string | undefined;
+
+    if (file) {
+      validateUploadFile(file);
+      const stored = await this.storageService.saveUploadedFile(
+        file,
+        `assignments/${assignment.courseId}`,
+      );
+      objectKey = stored.objectKey;
+      originalName = stored.originalName;
+      mimeType = stored.mimeType;
+    }
+
+    return this.assignmentsRepository.update(assignmentId, {
+      ...(dto.title !== undefined ? { title: dto.title } : {}),
+      ...(dto.description !== undefined
+        ? { description: dto.description }
+        : {}),
+      ...(dto.dueAt !== undefined ? { dueAt: new Date(dto.dueAt) } : {}),
+      ...(dto.maxScore !== undefined ? { maxScore: dto.maxScore } : {}),
+      ...(objectKey
+        ? {
+            objectKey,
+            originalName,
+            mimeType,
+          }
+        : {}),
+    });
+  }
+
+  async softDelete(assignmentId: string) {
+    const assignment = await this.assignmentsRepository.findById(assignmentId);
+    if (!assignment) {
+      throw new NotFoundException('Assignment not found');
+    }
+    return this.assignmentsRepository.softDelete(assignmentId);
   }
 
   async listForUser(userId: string, role: Role) {

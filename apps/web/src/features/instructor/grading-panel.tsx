@@ -177,55 +177,67 @@ export function InstructorGradingPanel() {
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-line/80 bg-white/90 p-5 shadow-[0_1px_0_rgba(19,35,28,0.04)]">
-      <div className="grid gap-2 md:grid-cols-4">
-        <select
-          className="rounded-xl border border-line bg-white px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
-          value={selectedCourseId}
-          onChange={(event) => {
-            setSelectedCourseId(event.target.value);
-            setSelectedAssignmentId("");
-          }}
-        >
-          <option value="">Filter by course</option>
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              Month {course.monthNumber}: {course.title}
-            </option>
-          ))}
-        </select>
-        <select
-          className="rounded-xl border border-line bg-white px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
-          value={selectedAssignmentId}
-          disabled={!selectedCourseId}
-          onChange={(event) => setSelectedAssignmentId(event.target.value)}
-        >
-          <option value="">Filter by assignment</option>
-          {assignments.map((assignment) => (
-            <option key={assignment.id} value={assignment.id}>
-              {assignment.title}
-            </option>
-          ))}
-        </select>
-        <select
-          className="rounded-xl border border-line bg-white px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
-          value={statusFilter}
-          onChange={(event) =>
-            setStatusFilter(event.target.value as StatusFilter)
-          }
-        >
-          <option value="ALL">All submissions</option>
-          <option value="NEEDS_GRADING">Needs grading</option>
-          <option value="DRAFT">Draft grades</option>
-          <option value="PUBLISHED">Published</option>
-          <option value="LATE">Late</option>
-        </select>
-        <input
-          className="rounded-xl border border-line px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
-          placeholder="Search student or file"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
+    <section className="space-y-4 rounded-2xl border border-line/80 bg-white/90 p-4 shadow-[0_1px_0_rgba(19,35,28,0.04)] sm:p-5">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <label className="block space-y-1 text-sm">
+          <span className="font-medium text-ink/70">Course</span>
+          <select
+            className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
+            value={selectedCourseId}
+            onChange={(event) => {
+              setSelectedCourseId(event.target.value);
+              setSelectedAssignmentId("");
+            }}
+          >
+            <option value="">Filter by course</option>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                Month {course.monthNumber}: {course.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block space-y-1 text-sm">
+          <span className="font-medium text-ink/70">Assignment</span>
+          <select
+            className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
+            value={selectedAssignmentId}
+            disabled={!selectedCourseId}
+            onChange={(event) => setSelectedAssignmentId(event.target.value)}
+          >
+            <option value="">Filter by assignment</option>
+            {assignments.map((assignment) => (
+              <option key={assignment.id} value={assignment.id}>
+                {assignment.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block space-y-1 text-sm">
+          <span className="font-medium text-ink/70">Status</span>
+          <select
+            className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
+            value={statusFilter}
+            onChange={(event) =>
+              setStatusFilter(event.target.value as StatusFilter)
+            }
+          >
+            <option value="ALL">All submissions</option>
+            <option value="NEEDS_GRADING">Needs grading</option>
+            <option value="DRAFT">Draft grades</option>
+            <option value="PUBLISHED">Published</option>
+            <option value="LATE">Late</option>
+          </select>
+        </label>
+        <label className="block space-y-1 text-sm">
+          <span className="font-medium text-ink/70">Search</span>
+          <input
+            className="w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
+            placeholder="Student or file"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
       </div>
 
       {message ? (
@@ -292,7 +304,7 @@ export function InstructorGradingPanel() {
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-3 lg:grid-cols-[160px_minmax(0,1fr)]">
+                <div className="mt-4 grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)] lg:grid-cols-[160px_minmax(0,1fr)]">
                   <label className="block space-y-1">
                     <span className="text-xs font-semibold uppercase tracking-wide text-ink/45">
                       Numerical score

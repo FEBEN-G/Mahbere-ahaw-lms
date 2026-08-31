@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/layout/panel";
+import { ErrorBanner, LoadingBlock } from "@/components/ui/feedback";
 import { useAuthStore } from "@/lib/auth/store";
 import { getStudentDashboardRequest } from "@/lib/dashboard/api";
 import {
@@ -106,14 +107,15 @@ export function StudentDashboard() {
   });
 
   if (dashboardQuery.isLoading) {
-    return <p className="text-sm text-ink/60">Loading your dashboard...</p>;
+    return <LoadingBlock label="Loading your dashboard…" />;
   }
 
   if (dashboardQuery.isError) {
     return (
-      <p className="text-sm text-accent">
-        {(dashboardQuery.error as Error).message}
-      </p>
+      <ErrorBanner
+        message={(dashboardQuery.error as Error).message}
+        onRetry={() => void dashboardQuery.refetch()}
+      />
     );
   }
 

@@ -89,9 +89,20 @@ export async function authenticatedBlob(path: string): Promise<Blob> {
   const token = getAuthState().accessToken;
   if (!token) throw new ApiError("Not authenticated", "UNAUTHORIZED", 401);
 
-  const response = await fetch(`${API_URL}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const send = async (accessToken: string) =>
+    fetch(`${API_URL}${path}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+  let response = await send(token);
+  if (response.status === 401) {
+    const nextToken = await refreshAccessToken();
+    if (!nextToken) {
+      window.location.href = "/login";
+      throw new ApiError("Session expired", "UNAUTHORIZED", 401);
+    }
+    response = await send(nextToken);
+  }
 
   if (!response.ok) {
     throw new ApiError("Download failed", "REQUEST_FAILED", response.status);

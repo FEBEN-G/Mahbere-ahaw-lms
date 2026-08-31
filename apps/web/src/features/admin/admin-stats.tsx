@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/layout/panel";
+import { ErrorBanner, LoadingBlock } from "@/components/ui/feedback";
 import {
   getAdminDashboardRequest,
   getAdminMetricsRequest,
@@ -16,9 +17,7 @@ const AdminMetricsCharts = dynamic(
     import("./admin-metrics-charts").then((module) => module.AdminMetricsCharts),
   {
     ssr: false,
-    loading: () => (
-      <p className="text-sm text-ink/55">Loading metrics charts...</p>
-    ),
+    loading: () => <LoadingBlock label="Loading metrics charts…" />,
   },
 );
 
@@ -42,7 +41,7 @@ export function AdminStats() {
         description="Monitor enrollment, published content, grading throughput, and pipeline health across the seminary LMS."
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="Students" value={stats?.students ?? "—"} />
         <StatCard label="Instructors" value={stats?.instructors ?? "—"} />
         <StatCard
@@ -61,12 +60,13 @@ export function AdminStats() {
       </div>
 
       {metricsQuery.isLoading ? (
-        <p className="text-sm text-ink/55">Loading metrics charts...</p>
+        <LoadingBlock label="Loading metrics charts…" />
       ) : null}
       {metricsQuery.isError ? (
-        <p className="rounded-xl border border-accent/30 bg-accent/10 px-3 py-2 text-sm text-ink">
-          Unable to load metrics charts.
-        </p>
+        <ErrorBanner
+          message="Unable to load metrics charts."
+          onRetry={() => void metricsQuery.refetch()}
+        />
       ) : null}
       {metricsQuery.data ? (
         <AdminMetricsCharts metrics={metricsQuery.data} />

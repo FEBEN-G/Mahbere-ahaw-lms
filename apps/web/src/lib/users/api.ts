@@ -64,22 +64,15 @@ export function listUsersRequest(params?: {
   role?: UserRole;
 }) {
   const search = new URLSearchParams();
-  if (params?.page) search.set("page", String(params.page));
-  if (params?.pageSize) search.set("pageSize", String(params.pageSize));
+  search.set("page", String(params?.page ?? 1));
+  search.set("pageSize", String(params?.pageSize ?? 100));
   if (params?.role) search.set("role", params.role);
   const query = search.toString();
 
-  return authenticatedRequest<{
-    items: AdminUser[];
-    meta: {
-      page: number;
-      pageSize: number;
-      total: number;
-      totalPages: number;
-    };
-  }>(`/users${query ? `?${query}` : ""}`, {
+  // ResponseInterceptor unwraps { items, meta } → data = items array
+  return authenticatedRequest<AdminUser[]>(`/users?${query}`, {
     method: "GET",
-  }).then((result) => result.items);
+  });
 }
 
 export function createStudentRequest(payload: CreateStudentPayload) {

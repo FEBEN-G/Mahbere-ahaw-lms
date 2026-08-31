@@ -129,7 +129,7 @@ export function StudentAssignmentsPanel() {
           {assignments.map((assignment) => (
             <li
               key={assignment.id}
-              className="rounded-2xl border border-line/80 bg-white/90 p-5 text-sm shadow-[0_1px_0_rgba(19,35,28,0.04)] transition hover:border-moss/30"
+              className="rounded-2xl border border-line/80 bg-white/90 p-4 text-sm shadow-[0_1px_0_rgba(19,35,28,0.04)] transition hover:border-moss/30 sm:p-5"
             >
               <div className="space-y-3">
                 <div className="flex flex-wrap items-start justify-between gap-2">

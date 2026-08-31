@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Panel, StatCard } from "@/components/layout/panel";
+import { ErrorBanner, LoadingBlock } from "@/components/ui/feedback";
 import { getInstructorDashboardRequest } from "@/lib/dashboard/api";
 import { getInstructorMeRequest } from "@/lib/instructors/api";
 
@@ -20,12 +21,15 @@ export function InstructorDashboard() {
   });
 
   if (meQuery.isLoading) {
-    return <p className="text-sm text-ink/60">Loading instructor profile...</p>;
+    return <LoadingBlock label="Loading instructor profile…" />;
   }
 
   if (meQuery.isError) {
     return (
-      <p className="text-sm text-accent">{(meQuery.error as Error).message}</p>
+      <ErrorBanner
+        message={(meQuery.error as Error).message}
+        onRetry={() => void meQuery.refetch()}
+      />
     );
   }
 

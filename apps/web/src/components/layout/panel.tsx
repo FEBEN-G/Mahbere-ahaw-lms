@@ -16,17 +16,21 @@ export function Panel({
       className={`rounded-2xl border border-line/80 bg-white/90 shadow-[0_1px_0_rgba(19,35,28,0.04),0_12px_32px_-20px_rgba(19,35,28,0.25)] backdrop-blur-sm transition-shadow hover:shadow-[0_1px_0_rgba(19,35,28,0.04),0_18px_40px_-18px_rgba(19,35,28,0.28)] ${className}`}
     >
       {title ? (
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line/70 px-5 py-4">
-          <div>
+        <div className="flex flex-col gap-3 border-b border-line/70 px-4 py-3.5 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-3 sm:px-5 sm:py-4">
+          <div className="min-w-0">
             <h2 className="text-base font-semibold text-ink">{title}</h2>
             {description ? (
               <p className="mt-0.5 text-sm text-ink/55">{description}</p>
             ) : null}
           </div>
-          {action}
+          {action ? (
+            <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+              {action}
+            </div>
+          ) : null}
         </div>
       ) : null}
-      <div className="p-5">{children}</div>
+      <div className="p-4 sm:p-5">{children}</div>
     </section>
   );
 }

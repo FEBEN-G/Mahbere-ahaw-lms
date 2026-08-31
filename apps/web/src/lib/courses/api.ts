@@ -54,10 +54,17 @@ export interface CourseDetail extends CourseSummary {
   instructors?: CourseInstructorAssignment[];
 }
 
-export async function listCoursesRequest() {
+export async function listCoursesRequest(params?: {
+  page?: number;
+  pageSize?: number;
+}) {
+  const search = new URLSearchParams();
+  search.set("page", String(params?.page ?? 1));
+  search.set("pageSize", String(params?.pageSize ?? 100));
   const data = await authenticatedRequest<
     CourseSummary[] | { items: CourseSummary[] }
-  >("/courses", { method: "GET" });
+  >(`/courses?${search.toString()}`, { method: "GET" });
+  // ResponseInterceptor usually unwraps items; keep fallback for safety
   return Array.isArray(data) ? data : data.items;
 }
 

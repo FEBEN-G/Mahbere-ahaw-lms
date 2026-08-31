@@ -3,6 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import {
+  EmptyState,
+  ErrorBanner,
+  LoadingBlock,
+} from "@/components/ui/feedback";
 import { listCoursesRequest, type CourseSummary } from "@/lib/courses/api";
 import { listOfflineCourses } from "@/lib/offline/db";
 import { useConnectivityStore } from "@/lib/offline/connectivity-store";
@@ -30,14 +35,15 @@ export function StudentCoursesList() {
   });
 
   if (coursesQuery.isLoading) {
-    return <p className="text-sm text-ink/60">Loading courses...</p>;
+    return <LoadingBlock label="Loading courses…" />;
   }
 
   if (coursesQuery.isError) {
     return (
-      <p className="text-sm text-accent">
-        {(coursesQuery.error as Error).message}
-      </p>
+      <ErrorBanner
+        message={(coursesQuery.error as Error).message}
+        onRetry={() => void coursesQuery.refetch()}
+      />
     );
   }
 
@@ -45,11 +51,14 @@ export function StudentCoursesList() {
 
   if (courses.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-line bg-white/70 px-5 py-10 text-center text-sm text-ink/60">
-        {online
-          ? "No unlocked courses yet."
-          : "No offline courses saved yet. Go online, open a course, and choose Download for offline."}
-      </div>
+      <EmptyState
+        title={online ? "No unlocked courses yet" : "No offline courses saved"}
+        description={
+          online
+            ? "Published courses for your unlocked months will appear here."
+            : "Go online, open a course, and choose Download for offline."
+        }
+      />
     );
   }
 

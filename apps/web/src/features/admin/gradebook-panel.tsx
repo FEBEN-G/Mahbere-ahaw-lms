@@ -2,6 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { Panel } from "@/components/layout/panel";
+import {
+  EmptyState,
+  ErrorBanner,
+  LoadingBlock,
+} from "@/components/ui/feedback";
 import {
   listGradebookRequest,
   type GradebookRow,
@@ -76,17 +82,34 @@ export function AdminGradebookPanel() {
   const totalPages = meta?.totalPages ?? 1;
 
   return (
-    <section className="space-y-4 rounded-2xl border border-line/80 bg-white/90 p-5 shadow-[0_1px_0_rgba(19,35,28,0.04)]">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
+    <Panel
+      title="Gradebook"
+      description="Centralized scores for all graded submissions. Excel export includes the full dataset."
+      action={
+        <button
+          type="button"
+          disabled={exportMutation.isPending}
+          onClick={() => exportMutation.mutate()}
+          className="rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-moss disabled:opacity-60"
+        >
+          {exportMutation.isPending ? "Exporting…" : "Export Excel"}
+        </button>
+      }
+    >
+      <div className="mb-4 flex flex-wrap gap-2">
+        <label className="block min-w-[200px] flex-1 space-y-1 text-sm">
+          <span className="font-medium text-ink/70">Search</span>
           <input
-            className="min-w-[200px] rounded-xl border border-line px-3 py-2 text-sm"
-            placeholder="Search student, course, assignment"
+            className="w-full rounded-xl border border-line px-3 py-2 outline-none ring-forest/20 focus:ring-2"
+            placeholder="Student, course, assignment"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
+        </label>
+        <label className="block space-y-1 text-sm">
+          <span className="font-medium text-ink/70">Status</span>
           <select
-            className="rounded-xl border border-line px-3 py-2 text-sm"
+            className="w-full rounded-xl border border-line px-3 py-2 outline-none ring-forest/20 focus:ring-2"
             value={statusFilter}
             onChange={(event) =>
               setStatusFilter(event.target.value as "ALL" | "PUBLISHED" | "DRAFT")
@@ -96,31 +119,27 @@ export function AdminGradebookPanel() {
             <option value="PUBLISHED">Published</option>
             <option value="DRAFT">Draft</option>
           </select>
-        </div>
-        <button
-          type="button"
-          disabled={exportMutation.isPending}
-          onClick={() => exportMutation.mutate()}
-          className="rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-moss disabled:opacity-60"
-        >
-          {exportMutation.isPending ? "Exporting…" : "Export Excel"}
-        </button>
+        </label>
       </div>
 
-      <p className="text-xs text-ink/55">
-        Centralized gradebook for all scored submissions. Excel export includes
-        the full dataset (not only this page).
-      </p>
+      {exportError ? <ErrorBanner message={exportError} /> : null}
 
-      {exportError ? <p className="text-sm text-accent">{exportError}</p> : null}
       {gradebookQuery.isLoading ? (
-        <p className="text-sm text-ink/60">Loading gradebook...</p>
+        <LoadingBlock label="Loading gradebook…" />
+      ) : gradebookQuery.isError ? (
+        <ErrorBanner
+          message={(gradebookQuery.error as Error).message}
+          onRetry={() => void gradebookQuery.refetch()}
+        />
       ) : rows.length === 0 ? (
-        <p className="text-sm text-ink/60">No grades recorded yet.</p>
+        <EmptyState
+          title="No grades recorded yet"
+          description="Published instructor grades will appear here."
+        />
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left text-sm">
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-line text-ink/60">
                   <th className="py-2 pr-3 font-medium">Student</th>
@@ -151,7 +170,28 @@ export function AdminGradebookPanel() {
             </table>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+          <ul className="space-y-3 md:hidden">
+            {rows.map((row: GradebookRow) => (
+              <li
+                key={row.id}
+                className="rounded-xl border border-line/70 px-4 py-3"
+              >
+                <p className="font-medium text-ink">
+                  {row.submission.student.user.firstName}{" "}
+                  {row.submission.student.user.lastName}
+                </p>
+                <p className="mt-1 text-sm text-ink/60">
+                  {row.submission.assignment.course.title}
+                </p>
+                <p className="mt-1 text-sm text-ink/70">
+                  {row.submission.assignment.title} · Score {row.score} ·{" "}
+                  {row.status}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm">
             <p className="text-ink/55">
               Page {meta?.page ?? page} of {totalPages} · {meta?.total ?? 0}{" "}
               grades
@@ -161,7 +201,7 @@ export function AdminGradebookPanel() {
                 type="button"
                 disabled={page <= 1 || gradebookQuery.isFetching}
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
-                className="rounded-md border border-line px-3 py-1.5 disabled:opacity-40"
+                className="rounded-lg border border-line px-3 py-1.5 disabled:opacity-40"
               >
                 Previous
               </button>
@@ -171,13 +211,13 @@ export function AdminGradebookPanel() {
                 onClick={() =>
                   setPage((current) => Math.min(totalPages, current + 1))
                 }
-                className="rounded-md border border-line px-3 py-1.5 disabled:opacity-40"
+                className="rounded-lg border border-line px-3 py-1.5 disabled:opacity-40"
               >
                 Next
               </button>
               <button
                 type="button"
-                className="rounded-md border border-line px-3 py-1.5"
+                className="rounded-lg border border-line px-3 py-1.5"
                 onClick={() =>
                   void queryClient.invalidateQueries({ queryKey: ["gradebook"] })
                 }
@@ -188,6 +228,6 @@ export function AdminGradebookPanel() {
           </div>
         </>
       )}
-    </section>
+    </Panel>
   );
 }

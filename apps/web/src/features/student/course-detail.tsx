@@ -101,7 +101,7 @@ export function StudentCourseDetail({ courseId }: { courseId: string }) {
           <p className="text-xs uppercase tracking-wide text-moss">
             Month {course.monthNumber}
           </p>
-          <h1 className="font-[family-name:var(--font-source-serif)] text-3xl text-ink">
+          <h1 className="font-[family-name:var(--font-source-serif)] text-2xl text-ink sm:text-3xl">
             {course.title}
           </h1>
           <p className="mt-2 text-ink/70">{course.description}</p>

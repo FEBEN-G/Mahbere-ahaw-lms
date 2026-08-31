@@ -1,6 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import {
+  EmptyState,
+  ErrorBanner,
+  LoadingBlock,
+} from "@/components/ui/feedback";
 import { listMyGradesRequest } from "@/lib/grading/api";
 import { useConnectivityStore } from "@/lib/offline/connectivity-store";
 
@@ -15,22 +20,23 @@ export function StudentGradesPanel() {
 
   if (!online) {
     return (
-      <div className="rounded-2xl border border-dashed border-line bg-white/70 px-5 py-10 text-center text-sm text-ink/60">
-        Connect to the internet to view published grades and instructor
-        feedback.
-      </div>
+      <EmptyState
+        title="Offline"
+        description="Connect to the internet to view published grades and instructor feedback."
+      />
     );
   }
 
   if (gradesQuery.isLoading) {
-    return <p className="text-sm text-ink/60">Loading grades...</p>;
+    return <LoadingBlock label="Loading grades…" />;
   }
 
   if (gradesQuery.isError) {
     return (
-      <p className="text-sm text-accent">
-        {(gradesQuery.error as Error).message}
-      </p>
+      <ErrorBanner
+        message={(gradesQuery.error as Error).message}
+        onRetry={() => void gradesQuery.refetch()}
+      />
     );
   }
 
@@ -38,10 +44,10 @@ export function StudentGradesPanel() {
 
   if (grades.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-line bg-white/70 px-5 py-10 text-center text-sm text-ink/60">
-        No published grades yet. Scores and instructor feedback will appear here
-        after grading.
-      </div>
+      <EmptyState
+        title="No published grades yet"
+        description="Scores and instructor feedback will appear here after grading."
+      />
     );
   }
 

@@ -1,12 +1,5 @@
 import Link from "next/link";
-import {
-  BookOpen,
-  Cross,
-  Globe2,
-  HeartHandshake,
-  Sparkles,
-  Target,
-} from "lucide-react";
+import { Cross, Sparkles, Target } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import {
   landingHero,
@@ -18,12 +11,6 @@ import {
 import { HeroFellowship } from "./hero-fellowship";
 import { LandingNav } from "./landing-nav";
 
-const highlights = [
-  { icon: BookOpen, label: "Monthly modules" },
-  { icon: Globe2, label: "Low-connectivity ready" },
-  { icon: HeartHandshake, label: "Instructor-led formation" },
-] as const;
-
 export function LandingPage() {
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#eef7fc_0%,#f8fbfd_28%,#f3f7f4_100%)]">
@@ -32,55 +19,37 @@ export function LandingPage() {
       <main lang="am">
         <section className="relative overflow-hidden">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(163,209,239,0.55),transparent_42%),radial-gradient(circle_at_82%_8%,rgba(215,25,32,0.08),transparent_34%)]" />
-          <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-[1.05fr_0.95fr] md:items-center md:px-8 md:py-24">
+          <div className="relative mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-5 sm:py-16 md:grid-cols-[1.05fr_0.95fr] md:items-center md:gap-10 md:px-8 md:py-24">
             <div className="animate-rise order-2 md:order-1">
-              <p className="mb-4 inline-flex rounded-full border border-brand-blue/30 bg-brand-blue/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-ink/70">
-                Distance Learning Platform
-              </p>
-              <h1 className="font-[family-name:var(--font-source-serif)] text-3xl leading-tight text-ink md:text-5xl">
+              <h1 className="font-[family-name:var(--font-source-serif)] text-2xl leading-tight text-ink sm:text-3xl md:text-5xl">
                 {organizationName.am}
               </h1>
-              <p className="mt-3 text-sm font-medium uppercase tracking-[0.12em] text-ink/45">
+              <p className="mt-3 text-xs font-medium uppercase tracking-[0.12em] text-ink/45 sm:text-sm">
                 {organizationName.en}
               </p>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink/75">
+              <p className="mt-5 max-w-xl text-base leading-relaxed text-ink/75 sm:mt-6 sm:text-lg">
                 {landingHero.tagline}
               </p>
-              <p className="mt-3 max-w-xl text-base text-ink/60">
+              <p className="mt-3 max-w-xl text-sm text-ink/60 sm:text-base">
                 {landingHero.subtitle}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
                 <Link
                   href="/login"
-                  className="rounded-full bg-brand-red px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_-12px_rgba(215,25,32,0.65)] transition hover:bg-brand-red/90"
+                  className="inline-flex items-center justify-center rounded-full bg-brand-red px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_-12px_rgba(215,25,32,0.65)] transition hover:bg-brand-red/90"
                 >
                   Enter the portal
                 </Link>
                 <a
                   href="#vision"
-                  className="rounded-full border border-line bg-white/80 px-6 py-3 text-sm font-semibold text-ink transition hover:bg-white"
+                  className="inline-flex items-center justify-center rounded-full border border-line bg-white/80 px-6 py-3 text-sm font-semibold text-ink transition hover:bg-white"
                 >
                   Explore our calling
                 </a>
               </div>
-              <div className="mt-10 grid gap-3 sm:grid-cols-3">
-                {highlights.map(({ icon: Icon, label }) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/65 px-4 py-3 backdrop-blur"
-                  >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-blue/25 text-brand-red">
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <span className="text-sm font-medium text-ink/75">
-                      {label}
-                    </span>
-                  </div>
-                ))}
-              </div>
             </div>
 
-            <div className="animate-rise order-1 flex justify-center md:order-2">
+            <div className="animate-rise order-1 mx-auto w-full max-w-md justify-center md:order-2 md:max-w-none md:flex">
               <HeroFellowship />
             </div>
           </div>
@@ -156,7 +125,7 @@ export function LandingPage() {
 
         <section className="px-5 pb-20 pt-4 md:px-8">
           <div className="mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-brand-red/15 bg-[linear-gradient(135deg,#1f4d3a_0%,#245743_52%,#163528_100%)] px-8 py-10 text-white md:px-12 md:py-12">
-            <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
+            <div className="grid gap-8 md:grid-cols-[1.2fr_auto] md:items-center">
               <div>
                 <p className="text-sm uppercase tracking-[0.18em] text-white/55">
                   Seminary LMS
@@ -170,20 +139,12 @@ export function LandingPage() {
                   distance learning.
                 </p>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row md:flex-col lg:flex-row">
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center rounded-full bg-brand-red px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-red/90"
-                >
-                  Sign in to portal
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
-                >
-                  Student & staff access
-                </Link>
-              </div>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center rounded-full bg-brand-red px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-red/90"
+              >
+                Sign in to portal
+              </Link>
             </div>
           </div>
         </section>
@@ -193,7 +154,7 @@ export function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <BrandLogo href="/" size="sm" />
           <p className="text-sm text-ink/55">
-            © {new Date().getFullYear()} {organizationName.en}. All rights
+            © {new Date().getFullYear()} {organizationName.shortEn}. All rights
             reserved.
           </p>
         </div>

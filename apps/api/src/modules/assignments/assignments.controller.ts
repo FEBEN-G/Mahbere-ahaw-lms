@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Res,
   UploadedFile,
@@ -19,6 +21,7 @@ import { createUploadInterceptorOptions } from '../../common/utils/upload-multer
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AssignmentsService } from './assignments.service';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
+import { UpdateAssignmentDto } from './dto/update-assignment.dto';
 
 @ApiTags('assignments')
 @ApiBearerAuth()
@@ -53,15 +56,6 @@ export class AssignmentsController {
     return this.assignmentsService.listByCourse(user.id, user.role, courseId);
   }
 
-  @Get(':id')
-  @RequirePermissions(Permission.COURSE_READ)
-  getById(
-    @CurrentUser() user: AuthenticatedUser,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
-    return this.assignmentsService.getById(user.id, user.role, id);
-  }
-
   @Get(':id/download')
   @RequirePermissions(Permission.COURSE_READ)
   async download(
@@ -80,5 +74,32 @@ export class AssignmentsController {
       `attachment; filename="${file.originalName}"`,
     );
     file.stream.pipe(response);
+  }
+
+  @Get(':id')
+  @RequirePermissions(Permission.COURSE_READ)
+  getById(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.assignmentsService.getById(user.id, user.role, id);
+  }
+
+  @Patch(':id')
+  @RequirePermissions(Permission.ASSIGNMENT_MANAGE)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file', createUploadInterceptorOptions()))
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateAssignmentDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.assignmentsService.update(id, dto, file);
+  }
+
+  @Delete(':id')
+  @RequirePermissions(Permission.ASSIGNMENT_MANAGE)
+  softDelete(@Param('id', ParseUUIDPipe) id: string) {
+    return this.assignmentsService.softDelete(id);
   }
 }

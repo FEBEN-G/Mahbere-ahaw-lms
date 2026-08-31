@@ -3,6 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { FileDropzone } from "@/components/uploads/file-dropzone";
+import { Panel } from "@/components/layout/panel";
+import {
+  EmptyState,
+  ErrorBanner,
+  LoadingBlock,
+} from "@/components/ui/feedback";
 import {
   addVideoLinkRequest,
   assignInstructorRequest,
@@ -33,7 +39,7 @@ export function AdminCoursesPanel() {
 
   const coursesQuery = useQuery({
     queryKey: ["courses"],
-    queryFn: listCoursesRequest,
+    queryFn: () => listCoursesRequest(),
   });
 
   const courseDetailQuery = useQuery({
@@ -85,6 +91,7 @@ export function AdminCoursesPanel() {
     onSuccess: async (_data, courseId) => {
       if (selectedCourseId === courseId) {
         setSelectedCourseId("");
+        setSelectedModuleId("");
       }
       setActionError(null);
       await queryClient.invalidateQueries({ queryKey: ["courses"] });
@@ -100,9 +107,12 @@ export function AdminCoursesPanel() {
       }),
     onSuccess: async () => {
       setModuleTitle("");
-      await queryClient.invalidateQueries({ queryKey: ["course", selectedCourseId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["course", selectedCourseId],
+      });
       await queryClient.invalidateQueries({ queryKey: ["courses"] });
     },
+    onError: (error: Error) => setActionError(error.message),
   });
 
   const videoMutation = useMutation({
@@ -114,8 +124,11 @@ export function AdminCoursesPanel() {
     onSuccess: async () => {
       setVideoTitle("");
       setVideoUrl("");
-      await queryClient.invalidateQueries({ queryKey: ["course", selectedCourseId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["course", selectedCourseId],
+      });
     },
+    onError: (error: Error) => setActionError(error.message),
   });
 
   const fileMutation = useMutation({
@@ -123,7 +136,9 @@ export function AdminCoursesPanel() {
     onSuccess: async () => {
       setUploadMessage("File uploaded successfully.");
       setActionError(null);
-      await queryClient.invalidateQueries({ queryKey: ["course", selectedCourseId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["course", selectedCourseId],
+      });
     },
     onError: (error: Error) => {
       setUploadMessage(null);
@@ -136,8 +151,11 @@ export function AdminCoursesPanel() {
       assignInstructorRequest(selectedCourseId, selectedInstructorId),
     onSuccess: async () => {
       setSelectedInstructorId("");
-      await queryClient.invalidateQueries({ queryKey: ["course", selectedCourseId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["course", selectedCourseId],
+      });
     },
+    onError: (error: Error) => setActionError(error.message),
   });
 
   const courses = coursesQuery.data ?? [];
@@ -182,218 +200,306 @@ export function AdminCoursesPanel() {
   }, [courses]);
 
   const monthSlotCount = publishedSlots.get(monthNumber) ?? 0;
+  const selectedCourse = courses.find((course) => course.id === selectedCourseId);
 
   return (
-    <section className="space-y-4 rounded-2xl border border-line/80 bg-white/90 p-5 shadow-[0_1px_0_rgba(19,35,28,0.04)]">
-      <p className="text-sm text-ink/65">
-        Create monthly courses, upload PDF/Word reading materials, and add
-        instructional video links. Each month can have at most{" "}
-        <strong>2 published</strong> courses for drip delivery.
-      </p>
-
-      <div className="flex flex-wrap gap-2">
-        <input
-          className="rounded-xl border border-line px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
-          placeholder="Course title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
-        <input
-          type="number"
-          min={1}
-          max={24}
-          className="w-24 rounded-xl border border-line px-3 py-2.5 text-sm outline-none ring-forest/20 focus:ring-2"
-          value={monthNumber}
-          onChange={(event) => setMonthNumber(Number(event.target.value))}
-        />
-        <button
-          type="button"
-          disabled={!title || createMutation.isPending}
-          onClick={() => createMutation.mutate()}
-          className="rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-moss disabled:opacity-60"
-        >
-          Create course
-        </button>
-      </div>
-      <p className="text-xs text-ink/55">
-        Month {monthNumber} published slots used: {monthSlotCount}/2
-      </p>
-
-      {actionError ? (
-        <p className="rounded-md border border-accent/30 bg-accent/10 px-3 py-2 text-sm">
-          {actionError}
-        </p>
-      ) : null}
-      {uploadMessage ? (
-        <p className="rounded-md border border-forest/30 bg-sand px-3 py-2 text-sm text-forest">
-          {uploadMessage}
-        </p>
-      ) : null}
-
-      <ul className="space-y-2 text-sm">
-        {courses.map((course) => (
-          <li
-            key={course.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-line/70 px-3 py-2"
-          >
+    <div className="space-y-6">
+      <Panel
+        title="Create course"
+        description="Each month can have at most 2 published courses for drip delivery."
+      >
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_7.5rem_auto]">
+          <label className="block space-y-1.5 text-sm">
+            <span className="font-medium text-ink/70">Title</span>
+            <input
+              className="w-full rounded-xl border border-line px-3 py-2.5 outline-none ring-forest/20 focus:ring-2"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Introduction to Theology"
+            />
+          </label>
+          <label className="block space-y-1.5 text-sm">
+            <span className="font-medium text-ink/70">Month</span>
+            <input
+              type="number"
+              min={1}
+              max={24}
+              className="w-full rounded-xl border border-line px-3 py-2.5 outline-none ring-forest/20 focus:ring-2"
+              value={monthNumber}
+              onChange={(event) => setMonthNumber(Number(event.target.value))}
+            />
+          </label>
+          <div className="flex items-end">
             <button
               type="button"
-              onClick={() => setSelectedCourseId(course.id)}
-              className={`text-left ${
-                selectedCourseId === course.id ? "font-semibold text-forest" : ""
-              }`}
+              disabled={!title || createMutation.isPending}
+              onClick={() => createMutation.mutate()}
+              className="w-full rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-moss disabled:opacity-60"
             >
-              Month {course.monthNumber}: {course.title}{" "}
-              <span className="text-ink/50">({course.status})</span>
+              {createMutation.isPending ? "Creating…" : "Create"}
             </button>
-            <div className="flex flex-wrap gap-2">
-              {course.status === "DRAFT" ? (
-                <button
-                  type="button"
-                  onClick={() => publishMutation.mutate(course.id)}
-                  className="rounded-md border border-line px-2 py-1 text-xs hover:bg-sand"
-                >
-                  Publish
-                </button>
-              ) : null}
-              {course.status === "PUBLISHED" ? (
-                <button
-                  type="button"
-                  onClick={() => unpublishMutation.mutate(course.id)}
-                  className="rounded-md border border-line px-2 py-1 text-xs hover:bg-sand"
-                >
-                  Unpublish
-                </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      `Delete "${course.title}"? This soft-deletes the course and its modules.`,
-                    )
-                  ) {
-                    deleteMutation.mutate(course.id);
-                  }
-                }}
-                className="rounded-md border border-accent/40 px-2 py-1 text-xs text-accent hover:bg-accent/10"
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-ink/55">
+          Month {monthNumber} published slots used: {monthSlotCount}/2
+        </p>
+        {actionError ? (
+          <div className="mt-3">
+            <ErrorBanner message={actionError} />
+          </div>
+        ) : null}
+        {uploadMessage ? (
+          <p className="mt-3 rounded-xl border border-forest/30 bg-sand px-3 py-2 text-sm text-forest">
+            {uploadMessage}
+          </p>
+        ) : null}
+      </Panel>
+
+      <Panel
+        title="Courses"
+        description="Select a course to manage instructors, modules, and reading materials."
+      >
+        {coursesQuery.isLoading ? (
+          <LoadingBlock label="Loading courses…" />
+        ) : coursesQuery.isError ? (
+          <ErrorBanner
+            message={(coursesQuery.error as Error).message}
+            onRetry={() => void coursesQuery.refetch()}
+          />
+        ) : courses.length === 0 ? (
+          <EmptyState
+            title="No courses yet"
+            description="Create the first monthly course above."
+          />
+        ) : (
+          <ul className="space-y-2">
+            {courses.map((course) => (
+              <li
+                key={course.id}
+                className={`rounded-xl border px-3 py-3 ${
+                  selectedCourseId === course.id
+                    ? "border-forest/40 bg-sand/40"
+                    : "border-line/70"
+                }`}
               >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCourseId(course.id);
+                      setSelectedModuleId("");
+                      setActionError(null);
+                      setUploadMessage(null);
+                    }}
+                    className="text-left"
+                  >
+                    <span className="font-medium text-ink">
+                      Month {course.monthNumber}: {course.title}
+                    </span>
+                    <span className="ml-2 text-xs uppercase tracking-wide text-ink/45">
+                      {course.status}
+                    </span>
+                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    {course.status === "DRAFT" ? (
+                      <button
+                        type="button"
+                        onClick={() => publishMutation.mutate(course.id)}
+                        className="rounded-lg border border-line px-2.5 py-1 text-xs font-medium hover:bg-sand"
+                      >
+                        Publish
+                      </button>
+                    ) : null}
+                    {course.status === "PUBLISHED" ? (
+                      <button
+                        type="button"
+                        onClick={() => unpublishMutation.mutate(course.id)}
+                        className="rounded-lg border border-line px-2.5 py-1 text-xs font-medium hover:bg-sand"
+                      >
+                        Unpublish
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Delete "${course.title}"? This soft-deletes the course and its modules.`,
+                          )
+                        ) {
+                          deleteMutation.mutate(course.id);
+                        }
+                      }}
+                      className="rounded-lg border border-accent/40 px-2.5 py-1 text-xs font-medium text-accent hover:bg-accent/10"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
 
       {selectedCourseId ? (
         <>
-          <div className="space-y-3 rounded-lg border border-line/70 bg-sand/20 p-4">
-            <h3 className="font-medium text-ink">Assigned instructors</h3>
-            {assignedInstructors.length === 0 ? (
-              <p className="text-sm text-ink/60">No instructors assigned yet.</p>
+          <Panel
+            title={`Instructors · ${selectedCourse?.title ?? "Course"}`}
+            description="Assign instructors who can grade this course."
+          >
+            {courseDetailQuery.isLoading ? (
+              <LoadingBlock label="Loading course details…" />
             ) : (
-              <ul className="space-y-1 text-sm text-ink/80">
-                {assignedInstructors.map((item) => (
-                  <li key={item.id}>
-                    {item.instructor.user.firstName}{" "}
-                    {item.instructor.user.lastName}
-                    <span className="text-ink/50">
-                      {" "}
-                      · {item.instructor.user.email}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <div className="space-y-4">
+                {assignedInstructors.length === 0 ? (
+                  <EmptyState
+                    title="No instructors assigned"
+                    description="Select an instructor below to grant grading access."
+                  />
+                ) : (
+                  <ul className="space-y-2 text-sm">
+                    {assignedInstructors.map((item) => (
+                      <li
+                        key={item.id}
+                        className="rounded-lg border border-line/70 px-3 py-2"
+                      >
+                        {item.instructor.user.firstName}{" "}
+                        {item.instructor.user.lastName}
+                        <span className="text-ink/50">
+                          {" "}
+                          · {item.instructor.user.email}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                  <label className="block space-y-1.5 text-sm">
+                    <span className="font-medium text-ink/70">Instructor</span>
+                    <select
+                      className="w-full rounded-xl border border-line px-3 py-2.5 outline-none ring-forest/20 focus:ring-2"
+                      value={selectedInstructorId}
+                      onChange={(event) =>
+                        setSelectedInstructorId(event.target.value)
+                      }
+                    >
+                      <option value="">Select instructor</option>
+                      {availableInstructors.map((user) => (
+                        <option
+                          key={user.id}
+                          value={user.instructorProfile?.id ?? ""}
+                        >
+                          {user.firstName} {user.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      disabled={
+                        !selectedInstructorId ||
+                        assignInstructorMutation.isPending
+                      }
+                      onClick={() => assignInstructorMutation.mutate()}
+                      className="w-full rounded-xl border border-line px-4 py-2.5 text-sm font-medium hover:bg-sand disabled:opacity-60 sm:w-auto"
+                    >
+                      Assign
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
-            <div className="flex flex-wrap gap-2">
-              <select
-                className="min-w-[220px] rounded-md border border-line px-3 py-2 text-sm"
-                value={selectedInstructorId}
-                onChange={(event) => setSelectedInstructorId(event.target.value)}
-              >
-                <option value="">Select instructor to assign</option>
-                {availableInstructors.map((user) => (
-                  <option
-                    key={user.id}
-                    value={user.instructorProfile?.id ?? ""}
-                  >
-                    {user.firstName} {user.lastName}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                disabled={
-                  !selectedInstructorId || assignInstructorMutation.isPending
-                }
-                onClick={() => assignInstructorMutation.mutate()}
-                className="rounded-md border border-line px-3 py-2 text-sm hover:bg-sand disabled:opacity-60"
-              >
-                Assign instructor
-              </button>
-            </div>
-          </div>
+          </Panel>
 
-          <div className="space-y-3 rounded-lg border border-line/70 bg-sand/20 p-4">
-            <h3 className="font-medium text-ink">Manage modules</h3>
-            <div className="flex flex-wrap gap-2">
-              <input
-                className="rounded-md border border-line px-3 py-2 text-sm"
-                placeholder="Module title"
-                value={moduleTitle}
-                onChange={(event) => setModuleTitle(event.target.value)}
-              />
-              <button
-                type="button"
-                disabled={!moduleTitle || moduleMutation.isPending}
-                onClick={() => moduleMutation.mutate()}
-                className="rounded-md border border-line px-3 py-2 text-sm hover:bg-sand disabled:opacity-60"
-              >
-                Add module
-              </button>
+          <Panel
+            title="Modules & materials"
+            description="Add modules, instructional videos, and PDF/Word readings."
+          >
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+              <label className="block space-y-1.5 text-sm">
+                <span className="font-medium text-ink/70">New module</span>
+                <input
+                  className="w-full rounded-xl border border-line px-3 py-2.5 outline-none ring-forest/20 focus:ring-2"
+                  value={moduleTitle}
+                  onChange={(event) => setModuleTitle(event.target.value)}
+                  placeholder="Module title"
+                />
+              </label>
+              <div className="flex items-end">
+                <button
+                  type="button"
+                  disabled={!moduleTitle || moduleMutation.isPending}
+                  onClick={() => moduleMutation.mutate()}
+                  className="w-full rounded-xl border border-line px-4 py-2.5 text-sm font-medium hover:bg-sand disabled:opacity-60 sm:w-auto"
+                >
+                  Add module
+                </button>
+              </div>
             </div>
 
-            {modules.length > 0 ? (
-              <select
-                className="w-full rounded-md border border-line px-3 py-2 text-sm"
-                value={selectedModuleId}
-                onChange={(event) => setSelectedModuleId(event.target.value)}
-              >
-                <option value="">Select module for attachments</option>
-                {modules.map((module) => (
-                  <option key={module.id} value={module.id}>
-                    {module.title}
-                  </option>
-                ))}
-              </select>
-            ) : null}
+            {modules.length === 0 ? (
+              <div className="mt-4">
+                <EmptyState
+                  title="No modules yet"
+                  description="Add a module, then attach readings or video links."
+                />
+              </div>
+            ) : (
+              <label className="mt-4 block space-y-1.5 text-sm">
+                <span className="font-medium text-ink/70">
+                  Module for attachments
+                </span>
+                <select
+                  className="w-full rounded-xl border border-line px-3 py-2.5 outline-none ring-forest/20 focus:ring-2"
+                  value={selectedModuleId}
+                  onChange={(event) => setSelectedModuleId(event.target.value)}
+                >
+                  <option value="">Select module</option>
+                  {modules.map((module) => (
+                    <option key={module.id} value={module.id}>
+                      {module.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
 
             {selectedModuleId ? (
-              <div className="grid gap-2 sm:grid-cols-2">
-                <input
-                  className="rounded-md border border-line px-3 py-2 text-sm"
-                  placeholder="Video title"
-                  value={videoTitle}
-                  onChange={(event) => setVideoTitle(event.target.value)}
-                />
-                <input
-                  className="rounded-md border border-line px-3 py-2 text-sm"
-                  placeholder="YouTube / Vimeo / video URL"
-                  value={videoUrl}
-                  onChange={(event) => setVideoUrl(event.target.value)}
-                />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <label className="block space-y-1.5 text-sm">
+                  <span className="font-medium text-ink/70">Video title</span>
+                  <input
+                    className="w-full rounded-xl border border-line px-3 py-2.5 outline-none ring-forest/20 focus:ring-2"
+                    value={videoTitle}
+                    onChange={(event) => setVideoTitle(event.target.value)}
+                  />
+                </label>
+                <label className="block space-y-1.5 text-sm">
+                  <span className="font-medium text-ink/70">Video URL</span>
+                  <input
+                    className="w-full rounded-xl border border-line px-3 py-2.5 outline-none ring-forest/20 focus:ring-2"
+                    value={videoUrl}
+                    onChange={(event) => setVideoUrl(event.target.value)}
+                    placeholder="YouTube / Vimeo URL"
+                  />
+                </label>
                 <button
                   type="button"
                   disabled={!videoTitle || !videoUrl || videoMutation.isPending}
                   onClick={() => videoMutation.mutate()}
-                  className="rounded-md border border-line px-3 py-2 text-sm hover:bg-sand disabled:opacity-60"
+                  className="rounded-xl border border-line px-4 py-2.5 text-sm font-medium hover:bg-sand disabled:opacity-60"
                 >
                   Add instructional video
                 </button>
-                <p className="sm:col-span-2 text-xs text-ink/55">
-                  Students see an in-app embedded player for YouTube/Vimeo links.
+                <p className="self-center text-xs text-ink/55 sm:col-span-1">
+                  Students see an embedded player for YouTube/Vimeo links.
                 </p>
                 <div className="sm:col-span-2">
+                  <p className="mb-1.5 text-sm font-medium text-ink/70">
+                    Reading material
+                  </p>
                   <FileDropzone
                     disabled={fileMutation.isPending}
                     label={
@@ -404,21 +510,19 @@ export function AdminCoursesPanel() {
                     onFile={(file) => {
                       setUploadMessage(null);
                       setActionError(null);
-
                       if (findDuplicateUpload(file, moduleUploads)) {
                         setActionError("File already uploaded.");
                         return;
                       }
-
                       fileMutation.mutate(file);
                     }}
                   />
                 </div>
               </div>
             ) : null}
-          </div>
+          </Panel>
         </>
       ) : null}
-    </section>
+    </div>
   );
 }

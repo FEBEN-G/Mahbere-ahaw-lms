@@ -1,6 +1,7 @@
 export const organizationName = {
   am: "ማኀበረ አኀው የክርስቶስ ቤተ-ክርስቲያን",
-  en: "Mahibere Ahaw Yekirstos Betekerstian",
+  en: "Mahbere Ahaw Yekirstos Betekerstian",
+  shortEn: "Mahbere Ahaw",
 } as const;
 
 export const landingHero = {

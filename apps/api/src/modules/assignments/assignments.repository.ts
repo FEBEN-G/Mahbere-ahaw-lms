@@ -47,4 +47,19 @@ export class AssignmentsRepository {
       orderBy: { dueAt: 'asc' },
     });
   }
+
+  update(id: string, data: Prisma.AssignmentUpdateInput) {
+    return this.prisma.assignment.update({
+      where: { id },
+      data,
+      include: { course: true },
+    });
+  }
+
+  softDelete(id: string) {
+    return this.prisma.assignment.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
 }

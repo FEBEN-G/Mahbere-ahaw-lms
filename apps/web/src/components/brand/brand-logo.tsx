@@ -45,7 +45,7 @@ export function BrandLogo({
               variant === "light" ? "text-white" : "text-ink"
             }`}
           >
-            Mahibere Ahaw
+            {organizationName.shortEn}
           </span>
           <span
             className={`block truncate text-[11px] uppercase tracking-[0.14em] ${
