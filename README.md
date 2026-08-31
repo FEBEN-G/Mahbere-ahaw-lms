@@ -88,6 +88,14 @@ Set `SEED_*` credentials in `apps/api/.env` (see `.env.example`), then run
 
 Passwords are configured only via `SEED_*` environment variables.
 
+On **Render**, open the API service **Shell** and run (fast — uses compiled seed, not ts-node):
+
+```bash
+npm run render:seed:api
+```
+
+Wait until you see `Seed complete.` The Web Shell may show **Reconnecting** if the session drops; run the command again after reconnect if login still fails.
+
 ## Deploy on Render
 
 Use these commands in the Render dashboard (production installs skip devDependencies by default).
