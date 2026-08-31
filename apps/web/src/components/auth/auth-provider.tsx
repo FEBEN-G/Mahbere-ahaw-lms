@@ -1,15 +1,28 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { BrandSplashLoader } from "@/components/brand/brand-splash-loader";
 import { ApiError } from "@/lib/api/client";
 import { meRequest } from "@/lib/auth/api";
 import { useAuthStore } from "@/lib/auth/store";
+
+const MIN_SPLASH_MS = 900;
 
 function isOfflineNetworkError(error: unknown): boolean {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     return true;
   }
   return error instanceof ApiError && error.code === "NETWORK_ERROR";
+}
+
+function waitForMinimumSplash(startedAt: number) {
+  const remaining = MIN_SPLASH_MS - (Date.now() - startedAt);
+  if (remaining <= 0) {
+    return Promise.resolve();
+  }
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, remaining);
+  });
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -20,29 +33,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setSession = useAuthStore((state) => state.setSession);
   const updateTokens = useAuthStore((state) => state.updateTokens);
   const clearSession = useAuthStore((state) => state.clearSession);
+
+  const splashStartedRef = useRef(Date.now());
   const validatedRef = useRef(false);
+  const [bootstrapping, setBootstrapping] = useState(true);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
-    if (!isHydrated || validatedRef.current) return;
-    validatedRef.current = true;
-
-    if (!accessToken) return;
-
-    // Keep an existing local session when the device is offline.
-    if (typeof navigator !== "undefined" && !navigator.onLine && user) {
-      return;
-    }
+    if (!isHydrated) return;
 
     let cancelled = false;
 
-    async function validateSession() {
-      try {
-        const nextUser = await meRequest(accessToken!);
+    async function finishBootstrap() {
+      await waitForMinimumSplash(splashStartedRef.current);
+      if (cancelled) return;
+      setIsExiting(true);
+      window.setTimeout(() => {
         if (!cancelled) {
-          updateTokens(accessToken!, refreshToken!, nextUser);
+          setBootstrapping(false);
+        }
+      }, 380);
+    }
+
+    async function bootstrap() {
+      if (!accessToken) {
+        await finishBootstrap();
+        return;
+      }
+
+      if (typeof navigator !== "undefined" && !navigator.onLine && user) {
+        await finishBootstrap();
+        return;
+      }
+
+      if (validatedRef.current) {
+        await finishBootstrap();
+        return;
+      }
+      validatedRef.current = true;
+
+      try {
+        const nextUser = await meRequest(accessToken);
+        if (!cancelled) {
+          updateTokens(accessToken, refreshToken!, nextUser);
         }
       } catch (error) {
         if (isOfflineNetworkError(error) && user) {
+          await finishBootstrap();
           return;
         }
 
@@ -50,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (!(isOfflineNetworkError(error) && user)) {
             clearSession();
           }
+          await finishBootstrap();
           return;
         }
 
@@ -62,14 +100,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (refreshError) {
           if (cancelled) return;
           if (isOfflineNetworkError(refreshError) && user) {
+            await finishBootstrap();
             return;
           }
           clearSession();
         }
       }
+
+      await finishBootstrap();
     }
 
-    void validateSession();
+    void bootstrap();
 
     return () => {
       cancelled = true;
@@ -84,11 +125,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearSession,
   ]);
 
-  if (!isHydrated) {
+  if (!isHydrated || bootstrapping) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-ink/60">
-        Loading session...
-      </div>
+      <BrandSplashLoader
+        label={isHydrated ? "Starting up" : "Opening"}
+        className={isExiting ? "animate-splash-exit" : undefined}
+      />
     );
   }
 

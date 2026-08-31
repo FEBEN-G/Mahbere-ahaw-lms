@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { BrandSplashLoader } from "@/components/brand/brand-splash-loader";
 import { setPortalRoleCookie } from "@/lib/auth/portal-role";
 import { dashboardPathForRole } from "@/lib/auth/routes";
 import { useAuthStore } from "@/lib/auth/store";
@@ -34,9 +35,11 @@ export function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
 
   if (!isHydrated) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center text-sm text-ink/60">
-        Checking access...
-      </div>
+      <BrandSplashLoader
+        fullScreen={false}
+        label="Checking access"
+        className="min-h-[50vh]"
+      />
     );
   }
 
