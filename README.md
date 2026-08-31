@@ -88,6 +88,34 @@ Defaults match `apps/api/prisma/seed.ts`. Override with `SEED_*` variables in
 
 Re-seed anytime: `npm run prisma:seed -w @lms/api`
 
+## Deploy on Render
+
+Use these commands in the Render dashboard (production installs skip devDependencies by default).
+
+**API — Build Command:**
+```bash
+npm run render:build:api
+```
+
+**API — Start Command:**
+```bash
+API_PORT=$PORT npm run render:start:api
+```
+
+**Web — Build Command:**
+```bash
+npm run render:build:web
+```
+
+**Web — Start Command:**
+```bash
+npm run start -w @lms/web
+```
+
+**API — Health Check Path:** `/api/v1/health/live`
+
+Set environment variables in Render (not in committed `.env` files). See `.env.example` and use Internal URLs for Postgres and Key Value (Redis).
+
 ## Architecture notes
 
 - Modular NestJS monolith; each feature owns controller → service → repository
