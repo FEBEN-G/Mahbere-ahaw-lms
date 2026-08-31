@@ -128,7 +128,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (!isHydrated || bootstrapping) {
     return (
       <BrandSplashLoader
-        label={isHydrated ? "Starting up" : "Opening"}
         className={isExiting ? "animate-splash-exit" : undefined}
       />
     );

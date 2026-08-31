@@ -35,11 +35,7 @@ export function AuthGuard({ allowedRoles, children }: AuthGuardProps) {
 
   if (!isHydrated) {
     return (
-      <BrandSplashLoader
-        fullScreen={false}
-        label="Checking access"
-        className="min-h-[50vh]"
-      />
+      <BrandSplashLoader fullScreen={false} className="min-h-[50vh]" />
     );
   }
 

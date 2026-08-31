@@ -1,6 +1,7 @@
 "use client";
 
-import { BrandLogo } from "@/components/brand/brand-logo";
+import Image from "next/image";
+import { useId } from "react";
 import { organizationName } from "@/lib/content/organization";
 
 interface BrandSplashLoaderProps {
@@ -9,11 +10,56 @@ interface BrandSplashLoaderProps {
   className?: string;
 }
 
+function SplashArcRing({
+  className = "",
+  dash = "90 200",
+  strokeWidth = 2.5,
+}: {
+  className?: string;
+  dash?: string;
+  strokeWidth?: number;
+}) {
+  const gradientId = useId();
+
+  return (
+    <div className={`absolute ${className}`} aria-hidden>
+      <svg className="h-full w-full" viewBox="0 0 100 100">
+        <circle
+          cx="50"
+          cy="50"
+          r="46"
+          fill="none"
+          stroke="rgba(212, 175, 55, 0.14)"
+          strokeWidth={strokeWidth - 0.5}
+        />
+        <circle
+          cx="50"
+          cy="50"
+          r="46"
+          fill="none"
+          stroke={`url(#${gradientId})`}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={dash}
+          className="splash-arc-stroke"
+        />
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f0d78c" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#b8922a" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  );
+}
+
 export function BrandSplashLoader({
-  label = "Loading",
   fullScreen = true,
   className = "",
-}: BrandSplashLoaderProps) {
+}: Omit<BrandSplashLoaderProps, "label"> & { label?: string }) {
+  const ariaLabel = organizationName.shortEn;
   const shellClass = fullScreen
     ? "fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-center"
     : "flex min-h-[40vh] flex-col items-center justify-center py-16";
@@ -24,48 +70,50 @@ export function BrandSplashLoader({
       role="status"
       aria-live="polite"
       aria-busy="true"
-      aria-label={label}
+      aria-label={ariaLabel}
     >
       {fullScreen ? (
-        <>
-          <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-mist via-[#eef3f0] to-sand"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(61,107,84,0.14),transparent_58%)]"
-            aria-hidden
-          />
-        </>
+        <div
+          className="pointer-events-none absolute inset-0 bg-[#eaf3fb]"
+          aria-hidden
+        />
       ) : null}
 
-      <div className="relative flex flex-col items-center gap-8">
+      <div className="relative flex flex-col items-center">
         <div className="relative flex h-36 w-36 items-center justify-center sm:h-40 sm:w-40">
-          <span className="splash-ring" aria-hidden />
-          <span className="splash-ring splash-ring-delay-1" aria-hidden />
-          <span className="splash-ring splash-ring-delay-2" aria-hidden />
-          <span className="splash-orbit" aria-hidden>
-            <span className="splash-orbit-dot" />
-          </span>
-          <span className="splash-orbit splash-orbit-reverse" aria-hidden>
-            <span className="splash-orbit-dot splash-orbit-dot-accent" />
-          </span>
+          <SplashArcRing
+            className="inset-[-8%] h-[116%] w-[116%] splash-arc-rotate"
+            dash="96 193"
+            strokeWidth={2.75}
+          />
+          <SplashArcRing
+            className="inset-[-16%] h-[132%] w-[132%] splash-arc-rotate-reverse"
+            dash="64 225"
+            strokeWidth={2}
+          />
 
-          <div className="relative z-10 animate-float-soft drop-shadow-md">
-            <BrandLogo size="xl" showText={false} />
+          <div className="relative z-10 flex h-[78%] w-[78%] items-center justify-center rounded-full bg-white shadow-[0_8px_28px_rgba(61,107,132,0.12)] ring-2 ring-[#d4af37]/50">
+            <Image
+              src="/logo.png"
+              alt={organizationName.am}
+              width={140}
+              height={140}
+              priority
+              className="h-[90%] w-[90%] rounded-full object-cover"
+            />
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-2 text-center">
-          <p className="font-[family-name:var(--font-source-serif)] text-lg text-ink sm:text-xl">
-            {organizationName.shortEn}
-          </p>
-          <p className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-ink/45">
-            <span className="splash-dot" aria-hidden />
-            {label}
-            <span className="splash-dot splash-dot-delay" aria-hidden />
-          </p>
-        </div>
+        <h1 className="mt-6 text-center font-[family-name:var(--font-source-serif)] text-sm font-semibold uppercase tracking-[0.28em] text-[#3d6b8f] sm:text-base sm:tracking-[0.3em]">
+          {organizationName.shortEn}
+        </h1>
+
+        {fullScreen ? (
+          <span
+            className="mt-5 h-px w-16 bg-gradient-to-r from-transparent via-[#a3c9e8] to-transparent"
+            aria-hidden
+          />
+        ) : null}
       </div>
     </div>
   );

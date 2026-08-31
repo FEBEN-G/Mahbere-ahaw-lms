@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "node ./scripts/copy-pdf-worker.mjs && next build",
+    "build": "node ./scripts/generate-brand-icons.mjs && node ./scripts/copy-pdf-worker.mjs && next build",
     "predev": "node ./scripts/copy-pdf-worker.mjs",
     "start": "next start",
     "lint": "next lint"
@@ -36,6 +36,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.34.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 
-const SHELL_CACHE = "lms-shell-v2";
-const STATIC_CACHE = "lms-static-v2";
+const SHELL_CACHE = "lms-shell-v3";
+const STATIC_CACHE = "lms-static-v3";
 const SHELL_URLS = [
   "/",
   "/login",
@@ -10,6 +10,7 @@ const SHELL_URLS = [
   "/student/assignments",
   "/student/grades",
   "/manifest.webmanifest",
+  "/logo.png",
   "/icon-192.png",
   "/icon-512.png",
   "/apple-touch-icon.png",

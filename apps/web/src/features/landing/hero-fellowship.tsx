@@ -1,81 +1,97 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-export function HeroFellowship() {
-  const frameRef = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [spotlight, setSpotlight] = useState({ x: 50, y: 40 });
-  const [hovering, setHovering] = useState(false);
+const SLIDES = [
+  {
+    src: "/hero-slide-1.jpg",
+    alt: "Mahbere Ahaw congregation gathered for worship and teaching",
+  },
+  {
+    src: "/hero-slide-2.jpg",
+    alt: "Mahbere Ahaw assembly listening during a ministry gathering",
+  },
+  {
+    src: "/hero-fellowship.png",
+    alt: "Congregation worshiping together with raised hands",
+  },
+] as const;
 
-  const handleMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    const node = frameRef.current;
-    if (!node) return;
+const AUTO_MS = 1800;
 
-    const rect = node.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width;
-    const py = (event.clientY - rect.top) / rect.height;
+interface HeroFellowshipProps {
+  className?: string;
+}
 
-    setTilt({
-      x: (py - 0.5) * -10,
-      y: (px - 0.5) * 14,
-    });
-    setSpotlight({ x: px * 100, y: py * 100 });
+export function HeroFellowship({ className = "" }: HeroFellowshipProps) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  const goTo = useCallback((next: number) => {
+    setIndex((next + SLIDES.length) % SLIDES.length);
   }, []);
 
-  const handleLeave = useCallback(() => {
-    setHovering(false);
-    setTilt({ x: 0, y: 0 });
-    setSpotlight({ x: 50, y: 40 });
-  }, []);
+  useEffect(() => {
+    if (paused) return;
+    const id = window.setInterval(() => {
+      setIndex((current) => (current + 1) % SLIDES.length);
+    }, AUTO_MS);
+    return () => window.clearInterval(id);
+  }, [paused]);
 
   return (
     <div
-      className="relative w-full max-w-[560px] motion-safe:animate-float-soft hover:[animation-play-state:paused]"
-      style={{ perspective: "1200px" }}
+      className={`relative w-full ${className}`}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
     >
-      <div className="pointer-events-none absolute -left-8 -top-8 h-28 w-28 rounded-full bg-brand-blue/50 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-10 -right-6 h-32 w-32 rounded-full bg-brand-red/20 blur-2xl" />
-
-      <div
-        ref={frameRef}
-        className="group relative"
-        onMouseEnter={() => setHovering(true)}
-        onMouseMove={handleMove}
-        onMouseLeave={handleLeave}
-        style={{
-          transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${hovering ? 1.02 : 1})`,
-          transformStyle: "preserve-3d",
-          transition: hovering
-            ? "transform 80ms linear"
-            : "transform 500ms cubic-bezier(0.22, 1, 0.36, 1)",
-        }}
-      >
-        <div
-          className="absolute -inset-3 rounded-[2.1rem] bg-[conic-gradient(from_140deg,#a3d1ef,#ffffff,#d71920,#a3d1ef)] opacity-70 blur-[1px]"
-          style={{ transform: "translateZ(-24px)" }}
-        />
-
-        <div className="relative overflow-hidden rounded-[1.85rem] border border-white/80 bg-white shadow-[0_40px_90px_-36px_rgba(19,35,28,0.45)]">
-          <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[5/4]">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-sand sm:aspect-[21/9]">
+        {SLIDES.map((slide, slideIndex) => (
+          <div
+            key={slide.src}
+            className={`absolute inset-0 transition-opacity duration-500 ease-out ${
+              slideIndex === index ? "opacity-100" : "opacity-0"
+            }`}
+            aria-hidden={slideIndex !== index}
+          >
             <Image
-              src="/hero-fellowship.png"
-              alt="Congregation worshiping together with raised hands"
+              src={slide.src}
+              alt={slide.alt}
               fill
-              priority
-              sizes="(min-width: 768px) 540px, 90vw"
-              className="object-cover object-[center_28%] transition duration-500 group-hover:scale-[1.06]"
-            />
-            <div
-              className="pointer-events-none absolute inset-0 mix-blend-soft-light transition-opacity duration-200"
-              style={{
-                opacity: hovering ? 0.7 : 0.25,
-                background: `radial-gradient(420px circle at ${spotlight.x}% ${spotlight.y}%, rgba(255,255,255,0.42), transparent 55%)`,
-              }}
+              priority={slideIndex === 0}
+              sizes="(min-width: 1280px) 1152px, 100vw"
+              className="object-cover object-center"
             />
           </div>
-        </div>
+        ))}
+      </div>
+
+      <div
+        className="mt-4 flex items-center justify-center gap-2"
+        role="tablist"
+        aria-label="Hero image slides"
+      >
+        {SLIDES.map((slide, slideIndex) => {
+          const active = slideIndex === index;
+          return (
+            <button
+              key={slide.src}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-label={`Show slide ${slideIndex + 1}`}
+              onClick={() => goTo(slideIndex)}
+              className={`h-2.5 rounded-full transition-all ${
+                active
+                  ? "w-7 bg-forest"
+                  : "w-2.5 bg-ink/25 hover:bg-ink/40"
+              }`}
+            />
+          );
+        })}
       </div>
     </div>
   );
