@@ -21,7 +21,9 @@ export class LocalStorageDriver implements StorageDriver {
     const configuredPath =
       this.configService.get<string>('storage.localPath') ??
       '../../storage/uploads';
-    this.basePath = resolve(process.cwd(), configuredPath);
+    this.basePath = configuredPath.startsWith('/')
+      ? configuredPath
+      : resolve(process.cwd(), configuredPath);
     if (!existsSync(this.basePath)) {
       mkdirSync(this.basePath, { recursive: true });
     }

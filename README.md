@@ -8,7 +8,7 @@ Distance Learning Management System for monthly modules, assignment submission, 
 | ---- | ---------- |
 | Web | Next.js 15, TypeScript, Tailwind, TanStack Query, Zustand, Zod |
 | API | NestJS, Prisma, PostgreSQL 17, Redis, JWT + Argon2 |
-| Storage | Local (dev) / MinIO (prod-ready) |
+| Storage | Local disk (dev + Render with Persistent Disk); MinIO/R2 optional later |
 | Context | `.ai/` architecture + module docs |
 
 ## Monorepo
@@ -114,7 +114,43 @@ npm run start -w @lms/web
 
 **API — Health Check Path:** `/api/v1/health/live`
 
-Set environment variables in Render (not in committed `.env` files). See `.env.example` and use Internal URLs for Postgres and Key Value (Redis).
+Set environment variables in Render (not in committed `.env` files). Use Internal URLs for Postgres and Key Value (Redis).
+
+### File storage (this phase — local, no R2)
+
+Uploads (PDFs, assignments) are stored on the **API server disk**, not in Postgres.
+
+1. On the **API** service in Render: **Disks** → add **Persistent Disk** (e.g. 1–10 GB), mount path **`/data/uploads`**
+2. Set on the API service:
+
+```env
+STORAGE_DRIVER=local
+STORAGE_LOCAL_PATH=/data/uploads
+```
+
+3. Remove or ignore `MINIO_*` variables for now — they are only needed if you switch to `STORAGE_DRIVER=minio` later.
+
+Without a Persistent Disk, uploaded files are **lost on redeploy**. The disk is shared by all users (students, instructors, admins) through the API.
+
+### API environment (minimum)
+
+| Variable | Notes |
+|----------|--------|
+| `DATABASE_URL` | Internal URL from Render Postgres |
+| `REDIS_URL` | Internal URL from Key Value |
+| `STORAGE_DRIVER` | `local` |
+| `STORAGE_LOCAL_PATH` | `/data/uploads` (must match disk mount) |
+| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | 32+ chars each |
+| `CORS_ORIGINS` | Your web URL(s) |
+| `WEB_PUBLIC_URL` | Public web URL |
+| `SEED_*` | For seeding via Shell (not committed) |
+
+### Web environment
+
+| Variable | Example |
+|----------|---------|
+| `NEXT_PUBLIC_API_URL` | `https://your-api.onrender.com/api/v1` |
+| `NEXT_PUBLIC_WS_URL` | `https://your-api.onrender.com` |
 
 ## Architecture notes
 
