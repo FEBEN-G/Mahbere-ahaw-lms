@@ -52,7 +52,7 @@ export function BrandLogo({
               variant === "light" ? "text-white/60" : "text-ink/50"
             }`}
           >
-            Seminary LMS
+            Seminary
           </span>
         </span>
       ) : null}

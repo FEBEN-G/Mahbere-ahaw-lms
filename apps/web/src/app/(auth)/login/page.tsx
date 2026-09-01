@@ -20,8 +20,8 @@ export default function LoginPage() {
               {organizationName.en}
             </p>
             <p className="mt-4 hidden max-w-md text-base leading-relaxed text-ink/70 sm:block">
-              Sign in to read monthly courses, submit assignments, or manage the
-              learning program from a modern LMS workspace.
+              Sign in to read monthly courses, submit assignments, or manage
+              the program as staff.
             </p>
           </div>
           <div className="animate-rise order-1 w-full rounded-2xl border border-line/80 bg-white/90 p-5 shadow-[0_30px_80px_-48px_rgba(19,35,28,0.55)] backdrop-blur sm:rounded-3xl sm:p-6 md:p-8 lg:order-2">

@@ -26,8 +26,8 @@ export function ConnectivityBanner() {
     <div className="mb-5 flex items-start gap-3 rounded-2xl border border-accent/25 bg-accent/10 px-4 py-3 text-sm text-ink">
       <WifiOff className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
       <p>
-        You are offline. You can read downloaded courses. Submitting assignments
-        and downloading new content require an internet connection.
+        You are offline. Downloaded courses still work. You need internet to
+        submit assignments or download new materials.
       </p>
     </div>
   );

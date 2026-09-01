@@ -9,7 +9,7 @@ export default function StudentAssignmentsPage() {
       <PortalShell>
         <PageHeader
           title="Assignments"
-          description="Download prompts when available and upload your completed work."
+          description="Download assignment questions and upload your completed work."
         />
         <StudentAssignmentsPanel />
       </PortalShell>

@@ -9,7 +9,7 @@ export default function AdminAssignmentsPage() {
       <PortalShell>
         <PageHeader
           title="Assignments"
-          description="Create, edit, and remove assignment prompts with due dates and optional files."
+          description="Create assignments with due dates and question sheets for students to download."
         />
         <AdminAssignmentsPanel />
       </PortalShell>

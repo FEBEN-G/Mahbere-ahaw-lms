@@ -37,22 +37,22 @@ export function AdminStats() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Program overview"
-        description="Monitor enrollment, published content, grading throughput, and pipeline health across the seminary LMS."
+        title="Dashboard"
+        description="See enrollment, courses, assignments, and grading at a glance."
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="Students" value={stats?.students ?? "—"} />
         <StatCard label="Instructors" value={stats?.instructors ?? "—"} />
         <StatCard
-          label="Published courses"
+          label="Live courses"
           value={stats?.publishedCourses ?? "—"}
         />
         <StatCard
-          label="Pending submissions"
+          label="Waiting to be graded"
           value={stats?.pendingSubmissions ?? "—"}
         />
-        <StatCard label="Published grades" value={stats?.gradedCount ?? "—"} />
+        <StatCard label="Grades shared" value={stats?.gradedCount ?? "—"} />
         <StatCard
           label="Graded this week"
           value={metricsQuery.data?.summary.gradedThisWeek ?? "—"}
@@ -87,7 +87,7 @@ export function AdminStats() {
           {
             href: "/admin/assignments",
             title: "Assignments",
-            body: "Create due dates and prompts.",
+            body: "Set due dates and upload question sheets.",
           },
           {
             href: "/admin/gradebook",

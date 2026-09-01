@@ -131,8 +131,8 @@ export function StudentDashboard() {
         title={`Welcome, ${firstName}`}
         description={
           online
-            ? `Month ${unlockedMonth} is active. Your two current courses and completion progress are shown below.`
-            : `Offline mode · Month ${unlockedMonth}. Showing downloaded courses. Connect to sync new content or submit work.`
+            ? `You are on Month ${unlockedMonth}. Your courses and progress for this month are below.`
+            : `Offline · Month ${unlockedMonth}. Showing downloaded courses. Go online to get new content or submit work.`
         }
       />
 
@@ -153,8 +153,8 @@ export function StudentDashboard() {
           />
         </div>
         <p className="mt-2 text-xs text-ink/55">
-          Progress includes reading materials opened and assignments submitted
-          for this month.
+          Progress includes readings you opened and assignments you submitted
+          this month.
         </p>
       </section>
 
@@ -164,14 +164,14 @@ export function StudentDashboard() {
             This month&apos;s courses
           </h2>
           <span className="text-xs uppercase tracking-[0.14em] text-ink/45">
-            {currentCourses.length}/2 slots
+            {currentCourses.length}/2 courses
           </span>
         </div>
         {currentCourses.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-line bg-white/70 px-5 py-10 text-center text-sm text-ink/60">
             {online
-              ? `No published courses for Month ${unlockedMonth} yet.`
-              : "No downloaded courses for this month. Go online and use Download for offline."}
+              ? `No live courses for Month ${unlockedMonth} yet.`
+              : "No downloaded courses for this month. Go online and tap Download for offline."}
           </div>
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
@@ -204,10 +204,10 @@ export function StudentDashboard() {
       </section>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Unlocked courses" value={dashboard.availableCourses} />
-        <StatCard label="Submissions" value={dashboard.submissionsCount} />
+        <StatCard label="Available courses" value={dashboard.availableCourses} />
+        <StatCard label="Work submitted" value={dashboard.submissionsCount} />
         <StatCard
-          label="Published grades"
+          label="Grades received"
           value={dashboard.publishedGradesCount}
         />
       </div>
@@ -217,7 +217,7 @@ export function StudentDashboard() {
           {
             href: "/student/courses",
             title: "All courses",
-            body: "Browse every unlocked month.",
+            body: "See every month you can access.",
             icon: BookOpen,
           },
           {

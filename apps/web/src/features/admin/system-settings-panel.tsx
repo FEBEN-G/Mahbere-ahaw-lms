@@ -23,11 +23,11 @@ type SettingsValues = z.infer<typeof settingsSchema>;
 
 const ACCESS_LEVEL_COPY: Record<UserRole, string> = {
   SUPER_ADMIN:
-    "Full system control: register students and instructors, set up courses, configure settings, and manage overall workflow.",
+    "Full access: add students and instructors, set up courses, change settings, and run the program.",
   INSTRUCTOR:
-    "Review student assignments, assign grades, and provide detailed written feedback.",
+    "Grade student assignments, enter scores, and write feedback for students to read.",
   STUDENT:
-    "Access monthly released courses, read modules in the platform, download assignment sheets, and upload completed work.",
+    "Read monthly courses, download assignment sheets, and upload completed work.",
 };
 
 const FALLBACK_ROLES: UserRole[] = [
@@ -97,10 +97,10 @@ export function SystemSettingsPanel() {
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-line bg-white p-5 shadow-sm md:p-6">
-        <h2 className="text-lg font-semibold text-ink">Program workflow</h2>
+        <h2 className="text-lg font-semibold text-ink">Program settings</h2>
         <p className="mt-1 text-sm text-ink/60">
-          Configure drip unlock timing, monthly course capacity, and upload
-          limits for the seminary LMS.
+          Control when new months open, how many courses go live each month, and
+          the maximum file size for uploads.
         </p>
 
         <form
@@ -108,7 +108,9 @@ export function SystemSettingsPanel() {
           onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         >
           <label className="flex flex-col gap-2 text-sm">
-            <span className="font-medium text-ink/80">Drip days per month</span>
+            <span className="font-medium text-ink/80">
+              Days between each new month
+            </span>
             <input
               type="number"
               min={1}
@@ -117,14 +119,14 @@ export function SystemSettingsPanel() {
               {...form.register("dripDaysPerMonth")}
             />
             <span className="text-xs text-ink/50">
-              Month 1 unlocks at cohort start; later months open after this
-              interval.
+              Month 1 opens on the student&apos;s start date; later months open
+              after this many days.
             </span>
           </label>
 
           <label className="flex flex-col gap-2 text-sm">
             <span className="font-medium text-ink/80">
-              Published courses per month
+              Live courses per month
             </span>
             <input
               type="number"
@@ -134,7 +136,7 @@ export function SystemSettingsPanel() {
               {...form.register("publishedCoursesPerMonth")}
             />
             <span className="text-xs text-ink/50">
-              Soft cap when publishing courses for a given month number.
+              Maximum courses you can publish for each program month.
             </span>
           </label>
 
@@ -175,9 +177,9 @@ export function SystemSettingsPanel() {
       </section>
 
       <section className="rounded-2xl border border-line bg-white p-5 shadow-sm md:p-6">
-        <h2 className="text-lg font-semibold text-ink">Access levels</h2>
+        <h2 className="text-lg font-semibold text-ink">Who can do what</h2>
         <p className="mt-1 text-sm text-ink/60">
-          Fixed role catalogs — permissions are assigned by role, not per user.
+          Each person has one role. Permissions follow the role, not the individual.
         </p>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {(accessQuery.data ?? FALLBACK_ROLES.map((role) => ({ role, permissions: [] as string[] }))).map(

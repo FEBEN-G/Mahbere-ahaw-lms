@@ -52,10 +52,10 @@ export function StudentCoursesList() {
   if (courses.length === 0) {
     return (
       <EmptyState
-        title={online ? "No unlocked courses yet" : "No offline courses saved"}
+        title={online ? "No courses yet" : "No offline courses saved"}
         description={
           online
-            ? "Published courses for your unlocked months will appear here."
+            ? "Courses for your current months will appear here when they go live."
             : "Go online, open a course, and choose Download for offline."
         }
       />

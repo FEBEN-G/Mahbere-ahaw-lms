@@ -8,8 +8,8 @@ export default function InstructorGradingPage() {
     <AuthGuard allowedRoles={["INSTRUCTOR"]}>
       <PortalShell>
         <PageHeader
-          title="Assignment review"
-          description="Filter submissions by course, assignment, or status. Download student work, enter a numerical score, and write detailed feedback before publishing."
+          title="Grade assignments"
+          description="Pick a course and assignment, download student work, enter a score, and share feedback."
         />
         <InstructorGradingPanel />
       </PortalShell>

@@ -17,19 +17,19 @@ export function AdminDripOverview() {
 
   const months = metricsQuery.data?.coursesByMonth ?? [];
   const cap = settingsQuery.data?.publishedCoursesPerMonth ?? 2;
-  const dripDays = settingsQuery.data?.dripDaysPerMonth ?? 30;
+  const daysBetweenMonths = settingsQuery.data?.dripDaysPerMonth ?? 30;
 
   return (
     <section className="rounded-2xl border border-line/80 bg-white/90 p-5 shadow-[0_1px_0_rgba(19,35,28,0.04)]">
-      <h2 className="text-lg font-semibold text-ink">Drip content delivery</h2>
+      <h2 className="text-lg font-semibold text-ink">Monthly course release</h2>
       <p className="mt-1 text-sm text-ink/65">
-        Students unlock Month 1 on their cohort start date. Every {dripDays}{" "}
-        days the next month unlocks automatically. Publish up to {cap} courses
-        per month so each unlock releases a full set.
+        Month 1 opens when a student starts the program. Every {daysBetweenMonths}{" "}
+        days the next month opens. You can publish up to {cap} courses per month
+        so students receive a full set each time.
       </p>
 
       {metricsQuery.isLoading ? (
-        <p className="mt-4 text-sm text-ink/55">Loading month slots…</p>
+        <p className="mt-4 text-sm text-ink/55">Loading months…</p>
       ) : months.length === 0 ? (
         <p className="mt-4 text-sm text-ink/55">No courses created yet.</p>
       ) : (
@@ -38,9 +38,9 @@ export function AdminDripOverview() {
             <thead>
               <tr className="border-b border-line text-ink/60">
                 <th className="py-2 pr-3 font-medium">Month</th>
-                <th className="py-2 pr-3 font-medium">Published</th>
-                <th className="py-2 pr-3 font-medium">Draft</th>
-                <th className="py-2 font-medium">Slots</th>
+                <th className="py-2 pr-3 font-medium">Live</th>
+                <th className="py-2 pr-3 font-medium">Not published</th>
+                <th className="py-2 font-medium">Ready?</th>
               </tr>
             </thead>
             <tbody>
@@ -63,7 +63,7 @@ export function AdminDripOverview() {
                           }
                         >
                           {row.published}/{cap}
-                          {ready ? " ready" : " incomplete"}
+                          {ready ? " · ready" : " · needs more courses"}
                         </span>
                       </td>
                     </tr>

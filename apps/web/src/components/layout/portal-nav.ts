@@ -44,14 +44,14 @@ const instructorNav: PortalNavItem[] = [
   },
   {
     href: "/instructor/grading",
-    label: "Reviews",
+    label: "Grade assignments",
     icon: PenSquare,
     match: "exact",
   },
 ];
 
 const adminNav: PortalNavItem[] = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard, match: "exact" },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, match: "exact" },
   { href: "/admin/users", label: "Users", icon: Users, match: "exact" },
   { href: "/admin/courses", label: "Courses", icon: BookOpen, match: "exact" },
   {

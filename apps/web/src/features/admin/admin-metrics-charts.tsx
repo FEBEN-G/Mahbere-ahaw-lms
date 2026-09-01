@@ -35,7 +35,7 @@ export function AdminMetricsCharts({ metrics }: { metrics: AdminMetrics }) {
     color: [forest, accent, moss],
     tooltip: { trigger: "axis" },
     legend: {
-      data: ["Submissions", "Published grades", "Enrollments"],
+      data: ["Submitted work", "Grades shared", "New students"],
       bottom: 0,
       textStyle: { color: ink },
     },
@@ -53,19 +53,19 @@ export function AdminMetricsCharts({ metrics }: { metrics: AdminMetrics }) {
     },
     series: [
       {
-        name: "Submissions",
+        name: "Submitted work",
         type: "line",
         smooth: true,
         data: metrics.series.submissions.map((point) => point.count),
       },
       {
-        name: "Published grades",
+        name: "Grades shared",
         type: "line",
         smooth: true,
         data: metrics.series.publishedGrades.map((point) => point.count),
       },
       {
-        name: "Enrollments",
+        name: "New students",
         type: "bar",
         data: metrics.series.enrollments.map((point) => point.count),
       },
@@ -83,7 +83,7 @@ export function AdminMetricsCharts({ metrics }: { metrics: AdminMetrics }) {
         center: ["50%", "45%"],
         label: { color: ink },
         data: [
-          { name: "Submitted", value: metrics.submissionPipeline.submitted },
+          { name: "On time", value: metrics.submissionPipeline.submitted },
           { name: "Late", value: metrics.submissionPipeline.late },
           { name: "Graded", value: metrics.submissionPipeline.graded },
           { name: "Returned", value: metrics.submissionPipeline.returned },
@@ -96,7 +96,7 @@ export function AdminMetricsCharts({ metrics }: { metrics: AdminMetrics }) {
     color: [forest, moss],
     tooltip: { trigger: "axis" },
     legend: {
-      data: ["Published", "Draft"],
+      data: ["Live for students", "Not published yet"],
       bottom: 0,
       textStyle: { color: ink },
     },
@@ -114,13 +114,13 @@ export function AdminMetricsCharts({ metrics }: { metrics: AdminMetrics }) {
     },
     series: [
       {
-        name: "Published",
+        name: "Live for students",
         type: "bar",
         stack: "courses",
         data: metrics.coursesByMonth.map((row) => row.published),
       },
       {
-        name: "Draft",
+        name: "Not published yet",
         type: "bar",
         stack: "courses",
         data: metrics.coursesByMonth.map((row) => row.draft),
@@ -132,21 +132,21 @@ export function AdminMetricsCharts({ metrics }: { metrics: AdminMetrics }) {
     <div className="grid gap-4 xl:grid-cols-2">
       <div className="xl:col-span-2">
         <ChartCard
-          title="Activity throughput"
-          description={`Last ${metrics.windowDays} days of submissions, published grades, and enrollments.`}
+          title="Recent activity"
+          description={`Last ${metrics.windowDays} days: submitted work, grades shared, and new students.`}
         >
           <ReactECharts option={throughputOption} style={{ height: "100%", width: "100%" }} />
         </ChartCard>
       </div>
       <ChartCard
-        title="Submission pipeline"
-        description="Current distribution of submission statuses."
+        title="Assignment status"
+        description="How student work is spread across grading stages right now."
       >
         <ReactECharts option={pipelineOption} style={{ height: "100%", width: "100%" }} />
       </ChartCard>
       <ChartCard
-        title="Month release status"
-        description="Published vs draft courses by drip month."
+        title="Courses by month"
+        description="Live vs not-yet-published courses for each program month."
       >
         <ReactECharts option={monthOption} style={{ height: "100%", width: "100%" }} />
       </ChartCard>

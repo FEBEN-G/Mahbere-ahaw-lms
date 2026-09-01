@@ -8,6 +8,7 @@ import {
   ErrorBanner,
   LoadingBlock,
 } from "@/components/ui/feedback";
+import { gradeStatusLabel } from "@/lib/content/display-labels";
 import {
   listGradebookRequest,
   type GradebookRow,
@@ -84,7 +85,7 @@ export function AdminGradebookPanel() {
   return (
     <Panel
       title="Gradebook"
-      description="Centralized scores for all graded submissions. Excel export includes the full dataset."
+      description="All student scores in one place. Export to Excel for records."
       action={
         <button
           type="button"
@@ -116,8 +117,8 @@ export function AdminGradebookPanel() {
             }
           >
             <option value="ALL">All statuses</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="DRAFT">Draft</option>
+            <option value="PUBLISHED">Shared with student</option>
+            <option value="DRAFT">Not shared yet</option>
           </select>
         </label>
       </div>
@@ -134,7 +135,7 @@ export function AdminGradebookPanel() {
       ) : rows.length === 0 ? (
         <EmptyState
           title="No grades recorded yet"
-          description="Published instructor grades will appear here."
+          description="When instructors share grades, they will show up here."
         />
       ) : (
         <>
@@ -163,7 +164,7 @@ export function AdminGradebookPanel() {
                       {row.submission.assignment.title}
                     </td>
                     <td className="py-2 pr-3">{row.score}</td>
-                    <td className="py-2">{row.status}</td>
+                    <td className="py-2">{gradeStatusLabel(row.status)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -185,7 +186,7 @@ export function AdminGradebookPanel() {
                 </p>
                 <p className="mt-1 text-sm text-ink/70">
                   {row.submission.assignment.title} · Score {row.score} ·{" "}
-                  {row.status}
+                  {gradeStatusLabel(row.status)}
                 </p>
               </li>
             ))}

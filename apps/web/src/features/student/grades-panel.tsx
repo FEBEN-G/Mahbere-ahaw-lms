@@ -22,7 +22,7 @@ export function StudentGradesPanel() {
     return (
       <EmptyState
         title="Offline"
-        description="Connect to the internet to view published grades and instructor feedback."
+        description="Connect to the internet to see your grades and instructor comments."
       />
     );
   }
@@ -45,8 +45,8 @@ export function StudentGradesPanel() {
   if (grades.length === 0) {
     return (
       <EmptyState
-        title="No published grades yet"
-        description="Scores and instructor feedback will appear here after grading."
+        title="No grades yet"
+        description="Your scores and instructor comments will appear here after grading."
       />
     );
   }
@@ -73,7 +73,7 @@ export function StudentGradesPanel() {
                 </p>
                 {grade.publishedAt ? (
                   <p className="mt-1 text-xs text-ink/45">
-                    Published {new Date(grade.publishedAt).toLocaleString()}
+                    Shared {new Date(grade.publishedAt).toLocaleString()}
                   </p>
                 ) : null}
               </div>

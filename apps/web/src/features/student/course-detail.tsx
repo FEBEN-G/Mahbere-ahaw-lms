@@ -168,7 +168,7 @@ export function StudentCourseDetail({ courseId }: { courseId: string }) {
                           href={`/student/courses/${courseId}/read/${attachment.id}?title=${encodeURIComponent(attachment.title)}&type=${encodeURIComponent(attachment.type)}`}
                           className="text-forest hover:underline"
                         >
-                          {attachment.title} (open reader)
+                          {attachment.title} (read online)
                         </Link>
                         <button
                           type="button"

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { FileDropzone } from "@/components/uploads/file-dropzone";
 import { DueDateCountdown } from "@/components/ui/due-date-countdown";
+import { submissionStatusLabel } from "@/lib/content/display-labels";
 import { listMyAssignmentsRequest } from "@/lib/assignments/api";
 import { authenticatedDownload } from "@/lib/api/upload-client";
 import {
@@ -18,7 +19,7 @@ async function openOfflinePrompt(assignmentId: string, fallbackName: string) {
   const cached = await getOfflineAssignmentPrompt(assignmentId);
   if (!cached) {
     throw new Error(
-      "Prompt not saved offline. Download the course for offline first.",
+      "Questions not saved offline. Download the course for offline use first.",
     );
   }
   const url = URL.createObjectURL(cached.blob);
@@ -96,13 +97,13 @@ export function StudentAssignmentsPanel() {
   return (
     <section className="space-y-3">
       <p className="text-sm text-ink/65">
-        Download the questionnaire, complete it as PDF, Word, or photo, then
-        upload before the due date. Countdown timers update automatically.
+        Download the assignment questions, complete your work, then upload
+        before the due date.
       </p>
       {!online ? (
         <p className="rounded-xl border border-line bg-sand/60 px-4 py-3 text-sm text-ink/70">
-          Offline mode: you can open saved assignment questions. Submitting
-          requires an internet connection.
+          Offline: you can open saved assignment questions. Uploading needs
+          internet.
         </p>
       ) : null}
       {promptError ? <p className="text-sm text-accent">{promptError}</p> : null}
@@ -121,8 +122,8 @@ export function StudentAssignmentsPanel() {
       ) : assignments.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-line bg-white/70 px-5 py-10 text-center text-sm text-ink/60">
           {online
-            ? "No assignments for unlocked months."
-            : "No offline assignment prompts saved yet. Open a course online and choose Download for offline."}
+            ? "No assignments for your current months."
+            : "No saved assignment questions yet. Open a course online and choose Download for offline."}
         </div>
       ) : (
         <ul className="space-y-3">
@@ -148,7 +149,7 @@ export function StudentAssignmentsPanel() {
                     </div>
                     {assignment.mySubmission ? (
                       <p className="mt-1 text-moss">
-                        Submitted ({assignment.mySubmission.status}) ·{" "}
+                        Submitted ({submissionStatusLabel(assignment.mySubmission.status)}) ·{" "}
                         {new Date(
                           assignment.mySubmission.submittedAt,
                         ).toLocaleString()}

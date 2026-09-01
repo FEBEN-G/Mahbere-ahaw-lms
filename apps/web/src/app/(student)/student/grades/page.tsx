@@ -8,8 +8,8 @@ export default function StudentGradesPage() {
     <AuthGuard allowedRoles={["STUDENT"]}>
       <PortalShell>
         <PageHeader
-          title="Grades & feedback"
-          description="Published scores and instructor comments appear here."
+          title="Grades"
+          description="Scores and comments from your instructors."
         />
         <StudentGradesPanel />
       </PortalShell>

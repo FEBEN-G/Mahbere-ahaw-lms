@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Panel, StatCard } from "@/components/layout/panel";
 import { ErrorBanner, LoadingBlock } from "@/components/ui/feedback";
 import { getInstructorDashboardRequest } from "@/lib/dashboard/api";
+import { courseStatusLabel } from "@/lib/content/display-labels";
 import { getInstructorMeRequest } from "@/lib/instructors/api";
 
 export function InstructorDashboard() {
@@ -40,13 +41,13 @@ export function InstructorDashboard() {
     <div className="space-y-6">
       <PageHeader
         title={`Welcome, ${data.user.firstName}`}
-        description={`${data.title ?? "Instructor"} — review submissions, download student work, and publish scores with written feedback.`}
+        description={`${data.title ?? "Instructor"} — grade assignments, download student work, and share scores with feedback.`}
         actions={
           <Link
             href="/instructor/grading"
             className="inline-flex items-center gap-2 rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-moss"
           >
-            Open reviews
+            Grade assignments
             <ArrowRight className="h-4 w-4" />
           </Link>
         }
@@ -54,7 +55,7 @@ export function InstructorDashboard() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard
-          label="Pending submissions"
+          label="Waiting to be graded"
           value={
             statsQuery.data?.pendingSubmissions ?? data.pendingSubmissionsCount
           }
@@ -66,11 +67,10 @@ export function InstructorDashboard() {
         />
       </div>
 
-      <Panel title="Assigned courses" description="Courses linked to your instructor profile">
+      <Panel title="Your courses" description="Courses linked to your account">
         {data.assignedCourses.length === 0 ? (
           <p className="text-sm text-ink/60">
-            No courses assigned yet. An admin will link you when course
-            management is configured.
+            No courses assigned yet. An administrator will link you to courses.
           </p>
         ) : (
           <ul className="space-y-2">
@@ -83,7 +83,7 @@ export function InstructorDashboard() {
                   Month {course.monthNumber}: {course.title}
                 </span>
                 <span className="rounded-full bg-sand px-2.5 py-0.5 text-xs font-medium text-ink/65">
-                  {course.status}
+                  {courseStatusLabel(course.status)}
                 </span>
               </li>
             ))}

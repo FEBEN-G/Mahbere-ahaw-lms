@@ -81,7 +81,7 @@ export function CreateUserForms() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel
           title="Register student"
-          description="Creates a student account with a one-time temporary password. Month 1 unlocks on the cohort start date."
+          description="Creates a student account with a one-time temporary password. Month 1 opens on their program start date."
         >
           <form
             className="space-y-3"
@@ -130,7 +130,7 @@ export function CreateUserForms() {
             </label>
             <label className="block space-y-1.5 text-sm">
               <span className="font-medium text-ink/70">
-                Cohort start date (optional — defaults to today)
+                Program start date (optional — defaults to today)
               </span>
               <input
                 type="date"

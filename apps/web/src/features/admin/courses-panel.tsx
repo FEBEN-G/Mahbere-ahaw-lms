@@ -21,6 +21,7 @@ import {
   unpublishCourseRequest,
   uploadModuleFileRequest,
 } from "@/lib/courses/api";
+import { courseStatusLabel } from "@/lib/content/display-labels";
 import { listUsersRequest } from "@/lib/users/api";
 import { findDuplicateUpload } from "@/lib/uploads/duplicate-file";
 
@@ -206,7 +207,7 @@ export function AdminCoursesPanel() {
     <div className="space-y-6">
       <Panel
         title="Create course"
-        description="Each month can have at most 2 published courses for drip delivery."
+        description="Each month can have at most 2 live courses for students."
       >
         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_7.5rem_auto]">
           <label className="block space-y-1.5 text-sm">
@@ -241,7 +242,7 @@ export function AdminCoursesPanel() {
           </div>
         </div>
         <p className="mt-3 text-xs text-ink/55">
-          Month {monthNumber} published slots used: {monthSlotCount}/2
+          Month {monthNumber} live courses: {monthSlotCount}/2
         </p>
         {actionError ? (
           <div className="mt-3">
@@ -296,8 +297,8 @@ export function AdminCoursesPanel() {
                     <span className="font-medium text-ink">
                       Month {course.monthNumber}: {course.title}
                     </span>
-                    <span className="ml-2 text-xs uppercase tracking-wide text-ink/45">
-                      {course.status}
+                    <span className="ml-2 text-xs font-medium text-ink/55">
+                      {courseStatusLabel(course.status)}
                     </span>
                   </button>
                   <div className="flex flex-wrap gap-2">

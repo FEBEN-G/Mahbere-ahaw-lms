@@ -10,7 +10,7 @@ export default function AdminUsersPage() {
       <PortalShell>
         <PageHeader
           title="Users"
-          description="Register students and instructors, then manage account access."
+          description="Add students and instructors, and turn accounts on or off."
         />
         <div className="space-y-6">
           <CreateUserForms />

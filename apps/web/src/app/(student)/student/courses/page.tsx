@@ -9,7 +9,7 @@ export default function StudentCoursesPage() {
       <PortalShell>
         <PageHeader
           title="Your courses"
-          description="Unlocked month content is ready to read online or download for offline study."
+          description="Courses for months you can access — read online or download for offline."
         />
         <StudentCoursesList />
       </PortalShell>

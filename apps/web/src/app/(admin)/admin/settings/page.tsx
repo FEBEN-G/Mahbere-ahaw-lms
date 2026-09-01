@@ -9,7 +9,7 @@ export default function AdminSettingsPage() {
       <PortalShell>
         <PageHeader
           title="Settings"
-          description="Configure program workflow and review Super Admin, Instructor, and Student access levels."
+          description="Set when new months open and review what each role can do."
         />
         <SystemSettingsPanel />
       </PortalShell>

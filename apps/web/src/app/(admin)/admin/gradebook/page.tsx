@@ -9,7 +9,7 @@ export default function AdminGradebookPage() {
       <PortalShell>
         <PageHeader
           title="Gradebook"
-          description="Review consolidated student grades and export Excel reports."
+          description="See all student scores and export them to Excel."
         />
         <AdminGradebookPanel />
       </PortalShell>

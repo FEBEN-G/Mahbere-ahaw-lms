@@ -17,10 +17,10 @@ const notoSansEthiopic = Noto_Sans_Ethiopic({
 });
 
 export const metadata: Metadata = {
-  title: "Mahbere Ahaw Seminary LMS",
+  title: "Mahbere Ahaw Seminary",
   description:
-    "Distance Learning Management System for Mahbere Ahaw Seminary",
-  applicationName: "Mahbere Ahaw LMS",
+    "Online learning for Mahbere Ahaw Seminary students and staff",
+  applicationName: "Mahbere Ahaw",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

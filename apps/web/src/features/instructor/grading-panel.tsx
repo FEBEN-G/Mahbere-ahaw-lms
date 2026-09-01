@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { listCourseAssignmentsRequest } from "@/lib/assignments/api";
+import { instructorReviewStatusLabel } from "@/lib/content/display-labels";
 import {
   gradeSubmissionRequest,
   publishGradeRequest,
@@ -23,10 +24,11 @@ function toNumber(value: string | number | null | undefined): number {
 }
 
 function submissionStatusLabel(submission: SubmissionItem): string {
-  if (submission.grade?.status === "PUBLISHED") return "Published";
-  if (submission.grade?.id) return "Draft grade";
-  if (submission.status === "LATE") return "Late · ungraded";
-  return "Needs grading";
+  return instructorReviewStatusLabel({
+    submissionStatus: submission.status,
+    gradeStatus: submission.grade?.status,
+    hasGrade: Boolean(submission.grade?.id),
+  });
 }
 
 function matchesStatus(submission: SubmissionItem, filter: StatusFilter): boolean {
@@ -112,7 +114,7 @@ export function InstructorGradingPanel() {
       }),
     onSuccess: async () => {
       setErrorMessage(null);
-      setMessage("Grade saved as draft. Publish when the student should see it.");
+      setMessage("Grade saved. Share it with the student when you are ready.");
       await queryClient.invalidateQueries({
         queryKey: ["submissions", selectedAssignmentId],
       });
@@ -129,7 +131,7 @@ export function InstructorGradingPanel() {
     mutationFn: publishGradeRequest,
     onSuccess: async () => {
       setErrorMessage(null);
-      setMessage("Grade published. The student can now see the score and feedback.");
+      setMessage("Grade shared. The student can now see the score and feedback.");
       await queryClient.invalidateQueries({
         queryKey: ["submissions", selectedAssignmentId],
       });
@@ -224,8 +226,8 @@ export function InstructorGradingPanel() {
           >
             <option value="ALL">All submissions</option>
             <option value="NEEDS_GRADING">Needs grading</option>
-            <option value="DRAFT">Draft grades</option>
-            <option value="PUBLISHED">Published</option>
+            <option value="DRAFT">Not shared yet</option>
+            <option value="PUBLISHED">Shared with student</option>
             <option value="LATE">Late</option>
           </select>
         </label>
@@ -253,7 +255,7 @@ export function InstructorGradingPanel() {
 
       {!selectedAssignmentId ? (
         <p className="text-sm text-ink/60">
-          Choose a course and assignment to review submissions.
+          Choose a course and assignment to start grading.
         </p>
       ) : submissionsQuery.isLoading ? (
         <p className="text-sm text-ink/60">Loading submissions...</p>
@@ -307,7 +309,7 @@ export function InstructorGradingPanel() {
                 <div className="mt-4 grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)] lg:grid-cols-[160px_minmax(0,1fr)]">
                   <label className="block space-y-1">
                     <span className="text-xs font-semibold uppercase tracking-wide text-ink/45">
-                      Numerical score
+                      Score
                     </span>
                     <div className="flex items-center gap-2">
                       <input
@@ -333,7 +335,7 @@ export function InstructorGradingPanel() {
                   </label>
                   <label className="block space-y-1">
                     <span className="text-xs font-semibold uppercase tracking-wide text-ink/45">
-                      Written feedback / corrections
+                      Feedback for the student
                     </span>
                     <textarea
                       rows={4}
@@ -370,12 +372,12 @@ export function InstructorGradingPanel() {
                         publishMutation.mutate(submission.grade!.id)
                       }
                     >
-                      Publish to student
+                      Share with student
                     </button>
                   ) : null}
                   {published ? (
                     <p className="self-center text-xs text-moss">
-                      Published scores cannot be edited.
+                      Shared grades cannot be edited.
                     </p>
                   ) : null}
                 </div>

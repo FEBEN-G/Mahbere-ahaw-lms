@@ -9,7 +9,7 @@ export default function AdminCoursesPage() {
       <PortalShell>
         <PageHeader
           title="Courses"
-          description="Create monthly courses, publish modules, and attach reading materials."
+          description="Create monthly courses, add reading materials, and make them live for students."
         />
         <AdminCoursesPanel />
       </PortalShell>

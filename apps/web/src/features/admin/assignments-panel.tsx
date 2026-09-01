@@ -122,7 +122,7 @@ export function AdminAssignmentsPanel() {
     <div className="space-y-6">
       <Panel
         title={editingId ? "Edit assignment" : "Create assignment"}
-        description="Set the prompt, due date, and optional file students can download."
+        description="Set the due date, instructions, and an optional question sheet for students to download."
       >
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block space-y-1.5 text-sm sm:col-span-2">
@@ -184,14 +184,14 @@ export function AdminAssignmentsPanel() {
 
           <div className="sm:col-span-2">
             <p className="mb-1.5 text-sm font-medium text-ink/70">
-              Prompt file (optional)
+              Question sheet (optional)
             </p>
             <FileDropzone
               disabled={saveMutation.isPending}
               label={
                 promptFile
                   ? promptFile.name
-                  : "Drop PDF or Word prompt (optional)"
+                  : "Drop a PDF or Word file with assignment questions (optional)"
               }
               onFile={(file) => setPromptFile(file)}
             />

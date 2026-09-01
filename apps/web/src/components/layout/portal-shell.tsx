@@ -236,10 +236,10 @@ export function PortalShell({ children }: PortalShellProps) {
               </button>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-ink">
-                  {user ? roleLabel(user.role) : "Portal"}
+                  {user ? roleLabel(user.role) : "Sign in"}
                 </p>
                 <p className="hidden truncate text-xs text-ink/50 sm:block">
-                  Distance learning workspace
+                  Mahbere Ahaw Seminary
                 </p>
               </div>
             </div>
